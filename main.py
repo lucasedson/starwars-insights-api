@@ -1,0 +1,1 @@
+from src.interfaces.handlers import hello_star_wars
