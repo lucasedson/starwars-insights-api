@@ -1,3 +1,6 @@
 # Summary
+- [Introdução](./introducao.md)
+- [Solução: Star Wars Insights API](./solucao.md)
 
-- [Chapter 1](./chapter_1.md)
+# Arquitetura
+- [Visão Geral](./arquitetura/visao-geral.md)
