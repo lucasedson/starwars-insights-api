@@ -25,3 +25,13 @@ class FirestoreManager:
         doc_ref = self.db.collection(collection).document(doc_id)
         doc = doc_ref.get()
         return doc.to_dict() if doc.exists else None
+    
+    def get_metadata(self, doc_name: str) -> dict:
+        """Busca documentos de configuração na coleção 'metadata'."""
+        try:
+            doc_ref = self.db.collection("metadata").document(doc_name)
+            doc = doc_ref.get()
+            return doc.to_dict() if doc.exists else {}
+        except Exception as e:
+            print(f"Erro ao buscar metadados: {e}")
+            return {}
