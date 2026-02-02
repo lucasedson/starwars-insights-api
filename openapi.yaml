@@ -1,0 +1,33 @@
+swagger: "2.0"
+info:
+  title: "Star Wars Insights API"
+  description: "API para busca de insights de Star Wars usando NLP e Firestore."
+  version: "1.0.0"
+schemes:
+  - "https"
+produces:
+  - "application/json"
+x-google-backend:
+  address: "https://us-east1-pod-ps-backend-python.cloudfunctions.net/star_wars_insights" # URL da sua função
+
+paths:
+  /:
+    get:
+      summary: "Consulta de Insights"
+      operationId: "getInsights"
+      parameters:
+        - name: "q"
+          in: "query"
+          description: "Pergunta em linguagem natural"
+          type: "string"
+        - name: "name"
+          in: "query"
+          type: "string"
+        - name: "type"
+          in: "query"
+          type: "string"
+      responses:
+        200:
+          description: "Sucesso"
+        400:
+          description: "Parâmetros inválidos"
