@@ -4,6 +4,8 @@ from app.models.entities import CharacterSchema, FilmSchema, StarshipSchema, Pla
 import logging
 from types import SimpleNamespace
 
+
+
 class SWAPIClient:
     def __init__(self):
         self.base_url = "https://swapi.dev/api"
@@ -16,6 +18,7 @@ class SWAPIClient:
         except requests.RequestException as e:
             logging.error(f"Erro ao buscar URL {url}: {e}")
             return None
+        
 
     def get_person(self, name: str) -> Optional[CharacterSchema]:
         data = self._get_request(f"{self.base_url}/people/?search={name}")

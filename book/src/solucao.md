@@ -26,3 +26,12 @@ Através do processamento de texto, o usuário pode fazer perguntas diretas como
   - Cloud Functions (Gen2): Escolhida pela suporte a concorrência e execução assíncrona (asyncio), essencial para resolver correlações de dados rapidamente.
   - API Gateway: Para criação de APIs RESTful
   - Cloud Storage: Utilizado para implementar um cache de alta disponibilidade e baixo custo, garantindo que a API respeite o rate limit da SWAPI e reduza a latência para o usuário final.
+
+
+<iframe 
+    src="./html_extras/arch.html" 
+    width="100%" 
+    height="500px" 
+    style="border:none;" 
+    title="Descrição do conteúdo">
+</iframe>
