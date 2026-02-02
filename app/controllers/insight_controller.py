@@ -9,7 +9,7 @@ class InsightController:
     def __init__(self, db_manager: FirestoreManager, swapi_client: SWAPIClient):
         self.db = db_manager
         self.swapi = swapi_client
-        self.nlp = NLPController()
+        self.nlp = NLPController(self.db)
 
     def _hydrate_field(self, data: dict, field_name: str, lookup_key: str) -> dict:
         """
