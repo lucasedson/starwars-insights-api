@@ -1,0 +1,73 @@
+import requests
+from typing import Optional
+from app.models.entities import CharacterSchema, FilmSchema, StarshipSchema, PlanetSchema, VehicleSchema, SpeciesSchema
+import logging
+from types import SimpleNamespace
+
+class SWAPIClient:
+    def __init__(self):
+        self.base_url = "https://swapi.dev/api"
+
+    def _get_request(self, url: str) -> Optional[dict]:
+        try:
+            response = requests.get(url, timeout=10.0)
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as e:
+            logging.error(f"Erro ao buscar URL {url}: {e}")
+            return None
+
+    def get_person(self, name: str) -> Optional[CharacterSchema]:
+        data = self._get_request(f"{self.base_url}/people/?search={name}")
+        return CharacterSchema(**data["results"][0]) if data and data.get("count", 0) > 0 else None
+
+    def get_movie(self, title: str) -> Optional[FilmSchema]:
+        data = self._get_request(f"{self.base_url}/films/?search={title}")
+        return FilmSchema(**data["results"][0]) if data and data.get("count", 0) > 0 else None
+        
+    def get_starship(self, name: str) -> Optional[StarshipSchema]:
+        data = self._get_request(f"{self.base_url}/starships/?search={name}")
+        return StarshipSchema(**data["results"][0]) if data and data.get("count", 0) > 0 else None
+        
+    def get_planet(self, name: str) -> Optional[PlanetSchema]:
+        data = self._get_request(f"{self.base_url}/planets/?search={name}")
+        return PlanetSchema(**data["results"][0]) if data and data.get("count", 0) > 0 else None
+        
+    def get_vehicle(self, name: str) -> Optional[VehicleSchema]:
+        data = self._get_request(f"{self.base_url}/vehicles/?search={name}")
+        return VehicleSchema(**data["results"][0]) if data and data.get("count", 0) > 0 else None
+        
+    def get_species(self, name: str) -> Optional[SpeciesSchema]:
+        data = self._get_request(f"{self.base_url}/species/?search={name}")
+        return SpeciesSchema(**data["results"][0]) if data and data.get("count", 0) > 0 else None
+
+    def fetch_hydrated(self, name: str, entity_type: str):
+        method_map = {
+            "people": "get_person",
+            "planets": "get_planet",
+            "films": "get_movie",
+            "species": "get_species",
+            "vehicles": "get_vehicle",
+            "starships": "get_starship",
+        }
+        method_name = method_map.get(entity_type)
+        if not method_name:
+            logging.error(f"Invalid entity_type: {entity_type}")
+            return None
+
+        param_name = "title" if entity_type == "films" else "name"
+        method_to_call = getattr(self, method_name, None)
+        if not method_to_call:
+            logging.error(f"Internal error: Method {method_name} not found in SWAPIClient")
+            return None
+        return method_to_call(**{param_name: name})
+        
+    def get_entity_by_url(self, url: str):
+        """
+        Busca qualquer entidade diretamente pela URL fornecida pela SWAPI.
+        """
+        data = self._get_request(url)
+        return SimpleNamespace(**data) if data else None
+
+        
+    
