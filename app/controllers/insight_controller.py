@@ -3,7 +3,11 @@ from datetime import date
 from app.models.swapi import SWAPIClient
 from app.models.database import FirestoreManager
 from app.views.responses import format_insight_response
-from app.controllers.nlp_controller import NLPController # Importante
+from app.controllers.nlp_controller import NLPController
+
+import logging
+
+
 
 class InsightController:
     def __init__(self, db_manager: FirestoreManager, swapi_client: SWAPIClient):
@@ -13,7 +17,7 @@ class InsightController:
 
     def _hydrate_field(self, data: dict, field_name: str, lookup_key: str) -> dict:
         """
-        Sua lógica original de hidratação (mantida intacta).
+        Busca e hidrata um campo da entidade
         """
         if field_name not in data:
             return data
@@ -80,8 +84,28 @@ class InsightController:
             pydantic_data = self.swapi.fetch_hydrated(name, entity_type)
             if pydantic_data:
                 data = pydantic_data.model_dump(by_alias=True)
+                
+                # --- LÓGICA DE APRENDIZADO ---
+                real_name = data.get("name")
+                metadata_map = {
+                    "people": "known_people",
+                    "planets": "known_planets",
+                    "starships": "known_starships",
+                    "films": "known_films",
+                    # "species": "known_species",
+                }
+                
+                target_list = metadata_map.get(entity_type)
+                known_list = self.nlp.config.get(target_list, [])
+                
+                if target_list and real_name not in known_list:
+                    self.db.add_to_metadata_list(target_list, real_name)
+                    log_message = f"Novo conhecimento: {real_name} ({entity_type})"
+                    logging.info(log_message)
             else:
-                return ({"error": f"Entidade '{name}' do tipo '{entity_type}' não encontrada."}, 404)
+                data = {"error": f"Entidade '{name}' não encontrada no universo Star Wars."}
+                return format_insight_response(data, filter_fields, "error")
+
         
         if data:
             hydration_map = {
