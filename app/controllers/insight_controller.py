@@ -17,7 +17,7 @@ class InsightController:
 
     def _hydrate_field(self, data: dict, field_name: str, lookup_key: str) -> dict:
         """
-        Busca e hidrata um campo da entidade
+        Busca e hidrata um campo da entidade.
         """
         if field_name not in data:
             return data
