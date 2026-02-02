@@ -46,7 +46,9 @@ def bootstrap_nlp_config():
         "known_films": ["The Phantom Menace", "Attack of the Clones", "Revenge of the Sith", "A New Hope", "The Empire Strikes Back", "Return of the Jedi"],
         "known_planets": ["Tatooine", "Alderaan", "Hoth", "Dagobah", "Bespin", "Endor", "Naboo", "Coruscant"],
         "known_starships": ["Millennium Falcon", "X-Wing", "TIE Fighter", "Death Star", "Snowspeeder"],
-        "known_people": ["Luke Skywalker", "Yoda", "Darth Vader", "Obi-Wan Kenobi"]
+        "known_people": ["Luke Skywalker", "Yoda", "Darth Vader", "Obi-Wan Kenobi"],
+        "kwown_species": [],
+        "known_vehicles": []
     }
 
     try:
