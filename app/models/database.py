@@ -35,3 +35,12 @@ class FirestoreManager:
         except Exception as e:
             print(f"Erro ao buscar metadados: {e}")
             return {}
+    
+    def add_to_metadata_list(self, list_name: str, item: str):
+        """Adiciona um novo item a uma lista de metadados (ex: known_people)."""
+        try:
+            doc_ref = self.db.collection("metadata").document("nlp_settings")
+            doc_ref.update({list_name: firestore.ArrayUnion([item])})
+        except Exception as e:
+            print(f"Erro ao atualizar metadados: {e}")
+            return
