@@ -28,7 +28,7 @@
                 </div>
                 <div>
                     <h1 class="text-2xl font-black tracking-tighter uppercase italic text-white">Star Wars Insight <span class="text-sky-500">API</span></h1>
-                    <p class="mono text-[10px] text-slate-500 tracking-widest uppercase">https://sw-gateway-aaqxefvm.ue.gateway.dev/</p>
+                    <p class="mono text-[10px] text-slate-500 tracking-widest uppercase italic">Gateway: Online</p>
                 </div>
             </div>
 
@@ -36,7 +36,7 @@
                 <div class="flex items-center gap-4 pr-6 border-r border-white/10">
                     <template x-if="!user">
                         <button @click="login()" class="flex items-center gap-2 bg-white text-black px-4 py-2 rounded font-bold text-xs hover:bg-slate-200 transition-all uppercase tracking-tight shadow-lg">
-                            <img src="https://www.google.com/favicon.ico" class="w-4 h-4"> Login Google
+                            <img src="https://www.google.com/favicon.ico" class="w-4 h-4"> Entrar com Google
                         </button>
                     </template>
                     
@@ -69,7 +69,7 @@
                 <form @submit.prevent="fetchData('natural')" class="flex flex-col gap-4">
                     <input type="text" x-model="naturalQuery" placeholder="Ex: Qual a altura do Yoda? ou Quais são as naves do Luke Skywalker?" class="flex-1 px-5 py-4 rounded outline-none text-sm font-medium transition-all">
                     <div class="flex justify-end">
-                        <button type="submit" :disabled="loading" class="bg-sky-600 hover:bg-sky-500 px-10 py-3 rounded font-black uppercase text-xs tracking-widest disabled:opacity-50 text-white">
+                        <button type="submit" :disabled="loading" class="bg-sky-600 hover:bg-sky-500 px-10 py-3 rounded font-black uppercase text-xs tracking-widest text-white disabled:opacity-50 transition-all">
                             <span x-text="loading ? 'Consultando...' : 'Consultar API'"></span>
                         </button>
                     </div>
@@ -87,24 +87,37 @@
                         </select>
                     </div>
                     <div class="md:col-span-2 space-y-2">
-                        <label class="mono text-[10px] uppercase text-slate-500 font-bold tracking-widest">Entidade</label>
-                        <input list="known-entities" type="text" x-model="struct.name" placeholder="Nome da entidade..." class="w-full px-4 py-3 rounded outline-none font-bold">
+                        <label class="mono text-[10px] uppercase text-slate-500 font-bold tracking-widest">Nome da Entidade</label>
+                        <input list="known-entities" type="text" x-model="struct.name" placeholder="Digite o nome..." class="w-full px-4 py-3 rounded outline-none font-bold">
                         <datalist id="known-entities">
                             <template x-for="item in metadata['known_' + struct.type]" :key="item"><option :value="item"></option></template>
                         </datalist>
                     </div>
                 </div>
-                <button @click="fetchData('structured')" :disabled="loading" class="w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded font-black uppercase text-xs tracking-widest text-white transition-all">Executar Consulta</button>
+
+                <div class="space-y-4">
+                    <label class="mono text-[10px] uppercase text-slate-500 font-bold tracking-widest">Filtros de Retorno</label>
+                    <div class="flex flex-wrap gap-2">
+                        <template x-for="field in schemaMap[struct.type]" :key="field">
+                            <button type="button" @click="toggleFilter(field)"
+                                :class="activeFilters.includes(field) ? 'bg-sky-600 text-white border-sky-400' : 'bg-black/30 text-slate-500 border-white/5'"
+                                class="px-3 py-1.5 rounded text-[10px] border font-bold uppercase transition-all" x-text="field">
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <button @click="fetchData('structured')" :disabled="loading" class="w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded font-black uppercase text-xs tracking-widest text-white transition-all shadow-lg">Executar Transmissão</button>
             </div>
 
             <div x-show="mode === 'history'" x-transition class="space-y-6">
                 <div class="flex justify-between items-center border-b border-white/5 pb-4">
-                    <h3 class="mono text-xs font-black uppercase text-sky-400 tracking-widest">Histórico de Consultas</h3>
-                    <button @click="fetchHistory()" class="mono text-[9px] text-slate-500 hover:text-white uppercase font-bold">Sincronizar</button>
+                    <h3 class="mono text-xs font-black uppercase text-sky-500 tracking-widest">Registros de Consulta</h3>
+                    <button @click="fetchHistory()" class="mono text-[9px] text-slate-500 hover:text-white uppercase transition-colors font-bold">Sincronizar</button>
                 </div>
                 <div class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar pr-2">
                     <template x-for="item in history">
-                        <div class="bg-black/20 p-4 rounded border border-white/5 flex justify-between items-center hover:border-sky-500/50 transition-all">
+                        <div class="bg-black/20 p-4 rounded border border-white/5 flex justify-between items-center transition-all">
                             <span class="text-sm font-medium text-slate-300" x-text="getItemLabel(item)"></span>
                             <span class="mono text-[9px] text-slate-600" x-text="formatDate(item.timestamp)"></span>
                         </div>
@@ -113,22 +126,37 @@
             </div>
         </main>
 
-        <div x-show="response && mode !== 'history'" x-cloak class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start pb-12 animate-in fade-in zoom-in">
+        <div x-show="response && mode !== 'history'" x-cloak class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start pb-12 animate-in fade-in zoom-in duration-500">
             <div class="bg-[#1f222d] rounded border border-white/5 overflow-hidden shadow-2xl">
-                <div class="bg-black/20 px-8 py-5 border-b border-white/5 flex justify-between items-center font-black italic">
-                    <h2 class="text-xl text-white uppercase tracking-tighter" x-text="response?.entity"></h2>
-                    <span class="mono text-[9px] bg-sky-500/10 text-sky-400 px-3 py-1 border border-sky-500/20 rounded uppercase" x-text="response?.source"></span>
+                <div class="bg-black/20 px-8 py-5 border-b border-white/5 flex justify-between items-center font-black">
+                    <h2 class="text-xl text-white uppercase italic tracking-tighter" x-text="response?.entity"></h2>
+                    <span class="mono text-[9px] bg-sky-500/10 text-sky-400 px-3 py-1 border border-sky-500/20 rounded uppercase font-bold" x-text="response?.source"></span>
                 </div>
                 <div class="p-8 space-y-6 max-h-[600px] overflow-y-auto custom-scrollbar">
                     <template x-for="(value, key) in response?.insight_value">
                         <div class="border-b border-white/5 pb-5 last:border-0">
                             <label class="mono text-[9px] uppercase text-sky-500 font-bold block mb-2" x-text="key.replace('_', ' ')"></label>
-                            <span class="text-white text-base font-semibold" x-text="value"></span>
+                            <div class="pl-1">
+                                <template x-if="Array.isArray(value)">
+                                    <div class="flex flex-wrap gap-2">
+                                        <template x-for="item in value">
+                                            <span class="bg-black/40 text-slate-300 px-3 py-1 rounded text-[10px] border border-white/5" x-text="item"></span>
+                                        </template>
+                                    </div>
+                                </template>
+                                <template x-if="!Array.isArray(value)">
+                                    <span class="text-slate-100 text-base font-semibold" x-text="value"></span>
+                                </template>
+                            </div>
                         </div>
                     </template>
                 </div>
             </div>
-            <div class="bg-[#10121a] rounded border border-white/5 p-8 font-mono text-[11px] min-h-[500px] flex flex-col">
+
+            <div class="bg-[#10121a] rounded border border-white/5 p-8 font-mono text-[11px] min-h-[500px] flex flex-col shadow-inner">
+                <div class="flex justify-between items-center mb-6 pb-4 border-b border-white/5 text-slate-600 font-bold uppercase tracking-widest text-[9px]">
+                    <span>raw_response.json</span>
+                </div>
                 <pre class="text-emerald-500/80 overflow-auto flex-1 custom-scrollbar leading-relaxed" x-text="JSON.stringify(response, null, 2)"></pre>
             </div>
         </div>
@@ -169,14 +197,22 @@
                             window.history.replaceState(null, null, window.location.pathname);
                         }
                     }
-                    if (this.token) await this.checkSession();
+
+                    if (this.token) {
+                        await this.checkSession();
+                    }
+
                     try {
                         const res = await fetch(`${baseUrl}metadata`);
-                        this.metadata = await res.json();
+                        if(res.ok) this.metadata = await res.json();
                     } catch (e) {}
                 },
 
-                getHeaders() { return { 'Authorization': `Bearer ${this.token}`, 'Accept': 'application/json' }; },
+                getHeaders() { 
+                    const headers = { 'Accept': 'application/json' };
+                    if (this.token) headers['Authorization'] = `Bearer ${this.token}`;
+                    return headers;
+                },
 
                 async checkSession() {
                     try {
@@ -189,6 +225,7 @@
 
                 setMode(m) {
                     this.mode = m;
+                    this.response = null;
                     if (m === 'history') this.fetchHistory();
                 },
 
@@ -230,11 +267,15 @@
                 },
 
                 async fetchData(type) {
+                    if (this.loading) return;
                     this.loading = true;
                     let url = baseUrl;
+                    
                     if (type === 'natural') {
+                        if(!this.naturalQuery) { this.loading = false; return; }
                         url += `?q=${encodeURIComponent(this.naturalQuery)}`;
                     } else {
+                        if(!this.struct.name) { alert("Escolha uma entidade."); this.loading = false; return; }
                         const params = new URLSearchParams({ name: this.struct.name, type: this.struct.type });
                         if (this.activeFilters.length > 0) params.append('filter', this.activeFilters.join(','));
                         url += `?${params.toString()}`;
@@ -244,7 +285,11 @@
                         const res = await fetch(url, { headers: this.getHeaders() });
                         if (res.status === 401) { this.logout(); return; }
                         this.response = await res.json();
-                    } catch (e) { alert("Erro na requisição"); } finally { this.loading = false; }
+                    } catch (e) { 
+                        alert("Falha na conexão com o Gateway."); 
+                    } finally { 
+                        this.loading = false; 
+                    }
                 }
             }
         }
