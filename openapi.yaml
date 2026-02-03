@@ -1,14 +1,14 @@
 swagger: '2.0'
 info:
   title: Star Wars Insights API
-  description: Interface inteligente para exploração do universo Star Wars via NLP e filtros estruturados.
-  version: 1.0.0
+  description: Interface inteligente para exploração do universo Star Wars via NLP e filtros estruturados com suporte total a CORS.
+  version: 1.1.0
 schemes:
   - https
 produces:
   - application/json
 
-# Configuração de Backend Padrão
+# Definição de Backend Padrão (Fallback)
 x-google-backend:
   address: "https://us-east1-pod-ps-backend-python.cloudfunctions.net/star_wars_insights"
   path_translation: APPEND_PATH_TO_ADDRESS
@@ -34,6 +34,19 @@ paths:
       responses:
         200:
           description: Sucesso
+    options:
+      summary: CORS Root
+      operationId: corsRoot
+      responses: &corsResponse
+        200:
+          description: OK
+          headers:
+            Access-Control-Allow-Origin:
+              type: string
+            Access-Control-Allow-Methods:
+              type: string
+            Access-Control-Allow-Headers:
+              type: string
 
   /login:
     get:
@@ -52,29 +65,29 @@ paths:
           description: Sucesso
 
   /me:
-      get:
-        summary: Perfil do Usuário
-        operationId: getUserProfile
-        x-google-backend:
-          address: "https://us-east1-pod-ps-backend-python.cloudfunctions.net/star_wars_insights/me"
-        responses:
-          200:
-            description: Sucesso
-      options:
-        summary: CORS support
-        operationId: corsMe
-        x-google-backend:
-          address: "https://us-east1-pod-ps-backend-python.cloudfunctions.net/star_wars_insights/me"
-        responses:
-          200:
-            description: OK
-            headers:
-              Access-Control-Allow-Origin:
-                type: string
-              Access-Control-Allow-Methods:
-                type: string
-              Access-Control-Allow-Headers:
-                type: string
+    get:
+      summary: Perfil do Usuário
+      operationId: getUserProfile
+      x-google-backend:
+        address: "https://us-east1-pod-ps-backend-python.cloudfunctions.net/star_wars_insights/me"
+      responses:
+        200:
+          description: Sucesso
+    options:
+      summary: CORS Me
+      operationId: corsMe
+      x-google-backend:
+        address: "https://us-east1-pod-ps-backend-python.cloudfunctions.net/star_wars_insights/me"
+      responses:
+        200:
+          description: OK
+          headers:
+            Access-Control-Allow-Origin:
+              type: string
+            Access-Control-Allow-Methods:
+              type: string
+            Access-Control-Allow-Headers:
+              type: string
 
   /history:
     get:
@@ -83,6 +96,19 @@ paths:
       responses:
         200:
           description: Sucesso
+    options:
+      summary: CORS History
+      operationId: corsHistory
+      responses:
+        200:
+          description: OK
+          headers:
+            Access-Control-Allow-Origin:
+              type: string
+            Access-Control-Allow-Methods:
+              type: string
+            Access-Control-Allow-Headers:
+              type: string
 
   /metadata:
     get:
@@ -91,3 +117,16 @@ paths:
       responses:
         200:
           description: Sucesso
+    options:
+      summary: CORS Metadata
+      operationId: corsMetadata
+      responses:
+        200:
+          description: OK
+          headers:
+            Access-Control-Allow-Origin:
+              type: string
+            Access-Control-Allow-Methods:
+              type: string
+            Access-Control-Allow-Headers:
+              type: string
