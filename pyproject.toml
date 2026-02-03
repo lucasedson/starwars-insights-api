@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "functions-framework>=3.10.0",
+    "google-auth>=2.48.0",
     "google-cloud-firestore>=2.23.0",
     "google-cloud-storage>=3.8.0",
     "httpx>=0.28.1",
@@ -13,6 +14,7 @@ dependencies = [
     "pydantic>=2.12.5",
     "pytest>=9.0.2",
     "pytest-asyncio>=1.3.0",
+    "python-dotenv>=1.2.1",
 ]
 
 [tool.pytest.ini_options]
