@@ -1,6 +1,14 @@
 import requests
 import pytest
 
+import os
+import dotenv
+
+dotenv.load_dotenv()
+E2E_TESTS = os.getenv("E2E_TESTS", "false").lower()
+
+if E2E_TESTS == "false":
+    pytest.skip("Teste de E2E desabilitado", allow_module_level=True)
 # URL base do servidor de desenvolvimento local
 BASE_URL = "http://localhost:8080"
 
