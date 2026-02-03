@@ -20,7 +20,7 @@
 </head>
 <body class="min-h-screen p-4 md:p-12">
 
-    <div class="max-w-6xl mx-auto" x-data="apiHandler()">
+    <div class="max-w-6xl mx-auto" x-data="apiHandler()" x-init="init()">
         <header class="mb-12 flex flex-col md:flex-row justify-between items-center gap-6 border-b border-white/5 pb-8">
             <div class="flex items-center gap-5">
                 <div class="w-12 h-12 bg-sky-500/10 border border-sky-500/30 rounded flex items-center justify-center text-sky-400">
@@ -39,13 +39,16 @@
                             <img src="https://www.google.com/favicon.ico" class="w-4 h-4"> Login Google
                         </button>
                     </template>
+                    
                     <template x-if="user">
                         <div class="flex items-center gap-4 animate-in fade-in" x-cloak>
                             <div class="text-right">
-                                <p class="text-[10px] font-black uppercase text-white leading-none" x-text="user.name || user.email.split('@')[0]"></p>
-                                <p class="mono text-[9px] text-slate-500" x-text="user.email"></p>
+                                <p class="text-[10px] font-black uppercase text-white leading-none" 
+                                   x-text="user.given_name || user.name || (user.email ? user.email.split('@')[0] : 'Usuário')"></p>
+                                <p class="mono text-[9px] text-slate-500" x-text="user.email || 'Autenticado'"></p>
                             </div>
-                            <img :src="user.picture || user.avatar_url || 'https://ui-avatars.com/api/?name='+user.email" class="w-9 h-9 rounded border border-white/10 object-cover shadow-lg">
+                            <img :src="user.picture || 'https://ui-avatars.com/api/?background=0ea5e9&color=fff&name=' + (user.email || 'SW')" 
+                                 class="w-9 h-9 rounded border border-white/10 object-cover shadow-lg">
                             <button @click="logout()" class="text-slate-500 hover:text-red-500 p-1 transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-width="2"/></svg>
                             </button>
@@ -64,9 +67,11 @@
         <main class="bg-[#1f222d] rounded border border-white/5 shadow-2xl p-8 mb-10">
             <div x-show="mode === 'natural'" x-transition>
                 <form @submit.prevent="fetchData('natural')" class="flex flex-col gap-4">
-                    <input type="text" x-model="naturalQuery" placeholder="Ex: Qual a altura do Yoda?" class="flex-1 px-5 py-4 rounded outline-none text-sm font-medium">
+                    <input type="text" x-model="naturalQuery" placeholder="Ex: Qual a altura do Yoda? ou Quais são as naves do Luke Skywalker?" class="flex-1 px-5 py-4 rounded outline-none text-sm font-medium transition-all">
                     <div class="flex justify-end">
-                        <button type="submit" :disabled="loading" class="bg-sky-600 hover:bg-sky-500 px-10 py-3 rounded font-black uppercase text-xs tracking-widest text-white disabled:opacity-50">Consultar</button>
+                        <button type="submit" :disabled="loading" class="bg-sky-600 hover:bg-sky-500 px-10 py-3 rounded font-black uppercase text-xs tracking-widest disabled:opacity-50 text-white">
+                            <span x-text="loading ? 'Consultando...' : 'Consultar API'"></span>
+                        </button>
                     </div>
                 </form>
             </div>
@@ -75,31 +80,31 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div class="space-y-2">
                         <label class="mono text-[10px] uppercase text-slate-500 font-bold tracking-widest">Tipo</label>
-                        <select x-model="struct.type" class="w-full px-4 py-3 rounded outline-none appearance-none">
+                        <select x-model="struct.type" class="w-full px-4 py-3 rounded outline-none cursor-pointer">
                             <template x-for="(fields, type) in schemaMap">
                                 <option :value="type" x-text="type.toUpperCase()"></option>
                             </template>
                         </select>
                     </div>
                     <div class="md:col-span-2 space-y-2">
-                        <label class="mono text-[10px] uppercase text-slate-500 font-bold tracking-widest">Nome</label>
-                        <input list="known-entities" type="text" x-model="struct.name" class="w-full px-4 py-3 rounded outline-none font-bold">
+                        <label class="mono text-[10px] uppercase text-slate-500 font-bold tracking-widest">Entidade</label>
+                        <input list="known-entities" type="text" x-model="struct.name" placeholder="Nome da entidade..." class="w-full px-4 py-3 rounded outline-none font-bold">
                         <datalist id="known-entities">
                             <template x-for="item in metadata['known_' + struct.type]" :key="item"><option :value="item"></option></template>
                         </datalist>
                     </div>
                 </div>
-                <button @click="fetchData('structured')" :disabled="loading" class="w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded font-black uppercase text-xs tracking-widest text-white">Executar</button>
+                <button @click="fetchData('structured')" :disabled="loading" class="w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded font-black uppercase text-xs tracking-widest text-white transition-all">Executar Consulta</button>
             </div>
 
             <div x-show="mode === 'history'" x-transition class="space-y-6">
                 <div class="flex justify-between items-center border-b border-white/5 pb-4">
-                    <h3 class="mono text-xs font-black uppercase text-sky-400 tracking-widest">Histórico</h3>
+                    <h3 class="mono text-xs font-black uppercase text-sky-400 tracking-widest">Histórico de Consultas</h3>
                     <button @click="fetchHistory()" class="mono text-[9px] text-slate-500 hover:text-white uppercase font-bold">Sincronizar</button>
                 </div>
-                <div class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar">
+                <div class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar pr-2">
                     <template x-for="item in history">
-                        <div class="bg-black/20 p-4 rounded border border-white/5 flex justify-between items-center">
+                        <div class="bg-black/20 p-4 rounded border border-white/5 flex justify-between items-center hover:border-sky-500/50 transition-all">
                             <span class="text-sm font-medium text-slate-300" x-text="getItemLabel(item)"></span>
                             <span class="mono text-[9px] text-slate-600" x-text="formatDate(item.timestamp)"></span>
                         </div>
@@ -110,8 +115,9 @@
 
         <div x-show="response && mode !== 'history'" x-cloak class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start pb-12 animate-in fade-in zoom-in">
             <div class="bg-[#1f222d] rounded border border-white/5 overflow-hidden shadow-2xl">
-                <div class="bg-black/20 px-8 py-5 border-b border-white/5 flex justify-between items-center">
-                    <h2 class="text-xl font-black italic uppercase text-white" x-text="response?.entity"></h2>
+                <div class="bg-black/20 px-8 py-5 border-b border-white/5 flex justify-between items-center font-black italic">
+                    <h2 class="text-xl text-white uppercase tracking-tighter" x-text="response?.entity"></h2>
+                    <span class="mono text-[9px] bg-sky-500/10 text-sky-400 px-3 py-1 border border-sky-500/20 rounded uppercase" x-text="response?.source"></span>
                 </div>
                 <div class="p-8 space-y-6 max-h-[600px] overflow-y-auto custom-scrollbar">
                     <template x-for="(value, key) in response?.insight_value">
@@ -122,8 +128,8 @@
                     </template>
                 </div>
             </div>
-            <div class="bg-[#10121a] rounded border border-white/5 p-8 font-mono text-[11px] min-h-[500px]">
-                <pre class="text-emerald-500/80 overflow-auto" x-text="JSON.stringify(response, null, 2)"></pre>
+            <div class="bg-[#10121a] rounded border border-white/5 p-8 font-mono text-[11px] min-h-[500px] flex flex-col">
+                <pre class="text-emerald-500/80 overflow-auto flex-1 custom-scrollbar leading-relaxed" x-text="JSON.stringify(response, null, 2)"></pre>
             </div>
         </div>
     </div>
@@ -154,61 +160,31 @@
                 },
 
                 async init() {
-                    console.log("Iniciando SW API Playground...");
-                    
-                    // 1. Verificar se há token no fragmento (após redirect)
                     const hash = window.location.hash;
                     if (hash.includes('id_token=')) {
                         const t = hash.split('id_token=')[1].split('&')[0];
                         if (t) {
-                            console.log("Token detectado na URL!");
-                            this.token = t;
                             localStorage.setItem('id_token', t);
+                            this.token = t;
                             window.history.replaceState(null, null, window.location.pathname);
                         }
                     }
-
-                    // 2. Se temos token, carregar usuário
-                    if (this.token) {
-                        console.log("Tentando validar sessão com token...");
-                        await this.checkSession();
-                    } else {
-                        console.log("Nenhum token encontrado.");
-                    }
-
-                    // 3. Metadata
+                    if (this.token) await this.checkSession();
                     try {
                         const res = await fetch(`${baseUrl}metadata`);
                         this.metadata = await res.json();
-                    } catch (e) { console.warn("Metadata offline."); }
+                    } catch (e) {}
                 },
 
-                getHeaders() {
-                    return {
-                        'Authorization': `Bearer ${this.token}`,
-                        'Accept': 'application/json'
-                    };
-                },
+                getHeaders() { return { 'Authorization': `Bearer ${this.token}`, 'Accept': 'application/json' }; },
 
                 async checkSession() {
                     try {
-                        const res = await fetch(`${baseUrl}me`, { 
-                            headers: this.getHeaders(),
-                            mode: 'cors' // Garantir CORS
-                        });
-                        
+                        const res = await fetch(`${baseUrl}me`, { headers: this.getHeaders() });
                         if (res.ok) {
-                            const data = await res.json();
-                            console.log("Sessão válida para:", data.email);
-                            this.user = data;
-                        } else {
-                            console.error("Sessão inválida. Status:", res.status);
-                            this.logout();
-                        }
-                    } catch (e) {
-                        console.error("Erro na chamada /me:", e);
-                        this.logout();
-                    }
+                            this.user = await res.json();
+                        } else { this.logout(); }
+                    } catch (e) { this.logout(); }
                 },
 
                 setMode(m) {
@@ -216,24 +192,19 @@
                     if (m === 'history') this.fetchHistory();
                 },
 
-                login() {
-                    console.log("Redirecionando para login...");
-                    window.location.href = `${baseUrl}login`;
-                },
+                login() { window.location.href = `${baseUrl}login`; },
 
                 logout() {
-                    console.log("Encerrando sessão...");
                     localStorage.removeItem('id_token');
-                    this.user = null;
-                    this.token = null;
-                    this.history = [];
+                    this.user = null; this.token = null; this.history = []; this.mode = 'natural';
                 },
 
                 getItemLabel(item) {
                     if (typeof item === 'string') return item;
-                    if (item && item.query) {
+                    if (item?.query) {
                         const q = item.query;
-                        return typeof q === 'object' ? (q.q || q.name) : q;
+                        if (typeof q === 'object') return q.q || `${q.name} (${q.type})`;
+                        return String(q);
                     }
                     return "Consulta";
                 },
@@ -246,12 +217,12 @@
                             const data = await res.json();
                             this.history = data.queries ? [...data.queries].reverse() : [];
                         }
-                    } catch (e) { console.error("Erro histórico:", e); }
+                    } catch (e) {}
                 },
 
                 formatDate(dateStr) {
                     if(!dateStr || dateStr === "date") return "";
-                    try { return new Date(dateStr).toLocaleString('pt-BR'); } catch (e) { return ""; }
+                    try { return new Date(dateStr).toLocaleString('pt-BR', {hour: '2-digit', minute:'2-digit'}); } catch (e) { return ""; }
                 },
 
                 toggleFilter(f) { 
@@ -259,7 +230,7 @@
                 },
 
                 async fetchData(type) {
-                    this.loading = true; this.error = null;
+                    this.loading = true;
                     let url = baseUrl;
                     if (type === 'natural') {
                         url += `?q=${encodeURIComponent(this.naturalQuery)}`;
@@ -271,9 +242,9 @@
 
                     try {
                         const res = await fetch(url, { headers: this.getHeaders() });
-                        if (res.status === 401) throw new Error("Não autorizado.");
+                        if (res.status === 401) { this.logout(); return; }
                         this.response = await res.json();
-                    } catch (e) { this.error = e.message; } finally { this.loading = false; }
+                    } catch (e) { alert("Erro na requisição"); } finally { this.loading = false; }
                 }
             }
         }
