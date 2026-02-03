@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Star Wars Insight API</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #161923; 
+            --card-bg: #1f222d;
+            --accent: #0ea5e9;
+            --border: #313131;
+            --text-main: #e6e1cf;
+        }
+        [x-cloak] { display: none !important; }
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        input, select { background: #10121a !important; border: 1px solid var(--border) !important; }
+        input:focus { border-color: var(--accent) !important; outline: none; }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-12">
+
+    <div class="max-w-6xl mx-auto" x-data="apiHandler()">
+        <header class="mb-12 flex flex-col md:flex-row justify-between items-center gap-6 border-b border-white/5 pb-8">
+            <div class="flex items-center gap-5">
+                <div class="w-12 h-12 bg-sky-500/10 border border-sky-500/30 rounded flex items-center justify-center text-sky-400">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-black tracking-tighter uppercase italic">Star Wars Insight <span class="text-sky-500">API</span></h1>
+                    <p class="mono text-[10px] text-slate-500 tracking-widest uppercase">http://localhost:8080</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-4 pr-6 border-r border-white/10">
+                    <template x-if="!user">
+                        <button @click="login()" class="flex items-center gap-2 bg-white text-black px-4 py-2 rounded font-bold text-xs hover:bg-slate-200 transition-all uppercase tracking-tight">
+                            <img src="https://www.google.com/favicon.ico" class="w-4 h-4"> Entrar com Google
+                        </button>
+                    </template>
+                    <template x-if="user">
+                        <div class="flex items-center gap-4">
+                            <div class="text-right">
+                                <p class="text-[10px] font-black uppercase leading-none" x-text="user.name || user.email.split('@')[0]"></p>
+                                <p class="mono text-[9px] text-slate-500" x-text="user.email"></p>
+                            </div>
+                            <img :src="user.picture || user.avatar_url || 'https://ui-avatars.com/api/?name='+user.email" class="w-9 h-9 rounded border border-white/10 object-cover shadow-lg">
+                            <button @click="logout()" class="text-slate-500 hover:text-red-500 p-1 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-width="2"/></svg>
+                            </button>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="bg-black/40 p-1 rounded border border-white/5 flex gap-1">
+                    <button @click="setMode('natural')" :class="mode === 'natural' ? 'bg-sky-600 text-white' : 'text-slate-500 hover:text-slate-300'" class="px-4 py-1.5 rounded text-[10px] font-black uppercase transition-all">Busca Natural</button>
+                    <button @click="setMode('structured')" :class="mode === 'structured' ? 'bg-sky-600 text-white' : 'text-slate-500 hover:text-slate-300'" class="px-4 py-1.5 rounded text-[10px] font-black uppercase transition-all">Estruturada</button>
+                    <button @click="setMode('history')" :class="mode === 'history' ? 'bg-sky-600 text-white' : 'text-slate-500 hover:text-slate-300'" class="px-4 py-1.5 rounded text-[10px] font-black uppercase transition-all">Histórico</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="bg-[#1f222d] rounded border border-white/5 shadow-2xl p-8 mb-10">
+            
+            <div x-show="mode === 'natural'" x-transition>
+                <form @submit.prevent="fetchData('natural')" class="flex flex-col gap-4">
+                    <input type="text" x-model="naturalQuery" 
+                        placeholder="Ex: Qual a altura do Yoda? ou Quais são as naves do Luke Skywalker?" 
+                        class="flex-1 px-5 py-4 rounded outline-none text-sm font-medium transition-all">
+                    <div class="flex justify-end">
+                        <button type="submit" :disabled="loading" class="bg-sky-600 hover:bg-sky-500 px-10 py-3 rounded font-black uppercase text-xs tracking-widest disabled:opacity-50">
+                            <span x-text="loading ? 'Consultando...' : 'Consultar API'"></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div x-show="mode === 'structured'" x-transition class="space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="space-y-2">
+                        <label class="mono text-[10px] uppercase text-slate-500 font-bold tracking-widest">Tipo</label>
+                        <select x-model="struct.type" class="w-full px-4 py-3 rounded outline-none appearance-none cursor-pointer">
+                            <template x-for="(fields, type) in schemaMap">
+                                <option :value="type" x-text="type.toUpperCase()"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2 space-y-2">
+                        <label class="mono text-[10px] uppercase text-slate-500 font-bold tracking-widest">Nome da Entidade</label>
+                        <input list="known-entities" type="text" x-model="struct.name" placeholder="Digite o nome..." class="w-full px-4 py-3 rounded outline-none font-bold">
+                        <datalist id="known-entities">
+                            <template x-for="item in metadata['known_' + struct.type]" :key="item"><option :value="item"></option></template>
+                        </datalist>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <label class="mono text-[10px] uppercase text-slate-500 font-bold tracking-widest">Filtros de Atributo</label>
+                    <div class="flex flex-wrap gap-2">
+                        <template x-for="field in schemaMap[struct.type]" :key="field">
+                            <button type="button" @click="toggleFilter(field)"
+                                :class="activeFilters.includes(field) ? 'bg-sky-600 text-white border-sky-400' : 'bg-black/30 text-slate-500 border-white/5'"
+                                class="px-3 py-1.5 rounded text-[10px] border font-bold uppercase transition-all" x-text="field">
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <button @click="fetchData('structured')" :disabled="loading" class="w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded font-black uppercase text-xs tracking-widest">Executar Consulta Estruturada</button>
+            </div>
+
+            <div x-show="mode === 'history'" x-transition class="space-y-6">
+                <div class="flex justify-between items-center border-b border-white/5 pb-4">
+                    <h3 class="mono text-xs font-black uppercase text-sky-400 tracking-widest">Histórico de Consultas</h3>
+                    <button @click="fetchHistory()" class="mono text-[9px] text-slate-500 hover:text-white uppercase">Sincronizar</button>
+                </div>
+                <div class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar">
+                    <template x-for="item in history">
+                        <div class="bg-black/20 p-4 rounded border border-white/5 flex justify-between items-center transition-all hover:border-white/20">
+                            <span class="text-sm font-medium text-slate-300" x-text="getItemLabel(item)"></span>
+                            <span class="mono text-[9px] text-slate-600" x-text="formatDate(item.timestamp)"></span>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </main>
+
+        <div x-show="response && mode !== 'history'" x-cloak class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start pb-12 animate-in fade-in zoom-in duration-500">
+            <div class="bg-[#1f222d] rounded border border-white/5 overflow-hidden shadow-2xl">
+                <div class="bg-black/20 px-8 py-5 border-b border-white/5 flex justify-between items-center">
+                    <h2 class="text-xl font-black italic uppercase tracking-tighter" x-text="response?.entity"></h2>
+                    <span class="mono text-[9px] bg-sky-500/10 text-sky-400 px-3 py-1 border border-sky-500/20 rounded uppercase" x-text="response?.source"></span>
+                </div>
+                <div class="p-8 space-y-6 max-h-[600px] overflow-y-auto custom-scrollbar">
+                    <template x-for="(value, key) in response?.insight_value">
+                        <div class="border-b border-white/5 pb-5 last:border-0">
+                            <label class="mono text-[9px] uppercase text-sky-500 font-bold tracking-widest block mb-2" x-text="key.replace('_', ' ')"></label>
+                            <div class="pl-1">
+                                <template x-if="Array.isArray(value)">
+                                    <div class="flex flex-wrap gap-2">
+                                        <template x-for="item in value">
+                                            <span class="bg-black/40 text-slate-300 px-3 py-1 rounded text-xs border border-white/5" x-text="item"></span>
+                                        </template>
+                                    </div>
+                                </template>
+                                <template x-if="!Array.isArray(value)">
+                                    <span class="text-slate-100 text-base font-semibold" x-text="value"></span>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <div class="bg-[#10121a] rounded border border-white/5 p-8 font-mono text-[11px] min-h-[500px] flex flex-col">
+                <div class="flex justify-between items-center mb-6 pb-4 border-b border-white/5">
+                    <span class="text-slate-600 font-bold uppercase tracking-widest text-[9px]">raw_response.json</span>
+                    <button @click="navigator.clipboard.writeText(JSON.stringify(response, null, 2))" class="text-slate-600 hover:text-white uppercase text-[9px] border border-white/5 px-2 py-1 rounded">Copiar</button>
+                </div>
+                <pre class="text-emerald-500/80 overflow-auto flex-1 custom-scrollbar leading-relaxed" x-text="JSON.stringify(response, null, 2)"></pre>
+            </div>
+        </div>
+
+        <template x-if="showSuggestion">
+            <div class="fixed bottom-12 left-1/2 -translate-x-1/2 z-50 p-4 bg-sky-900/90 border border-sky-500/50 text-white rounded-lg shadow-2xl backdrop-blur-sm animate-in slide-in-from-bottom-5">
+                <p class="text-xs font-bold uppercase tracking-widest">
+                    <span class="text-sky-400">Você quis dizer:</span> 
+                    <span class="ml-2" x-text="response?.suggestion"></span>?
+                </p>
+            </div>
+        </template>
+
+        <div x-show="error" x-cloak class="fixed bottom-8 right-8 p-4 bg-red-950 border border-red-500/50 text-red-200 rounded shadow-2xl z-50 flex items-center gap-4">
+            <span class="text-xs font-bold uppercase" x-text="error"></span>
+            <button @click="error = null" class="ml-4 font-black">×</button>
+        </div>
+    </div>
+
+    <script>
+        const baseUrl = "http://localhost:8080/";
+
+        function apiHandler() {
+            return {
+                mode: 'natural',
+                naturalQuery: '',
+                activeFilters: [],
+                struct: { name: '', type: 'people' },
+                response: null,
+                metadata: {},
+                history: [], 
+                user: null,
+                token: localStorage.getItem('id_token') || null,
+                loading: false,
+                showSuggestion: false,
+                error: null,
+
+                schemaMap: {
+                    people: ['birth_year', 'eye_color', 'gender', 'hair_color', 'skin_color', 'height', 'mass', 'homeworld', 'films', 'species', 'starships', 'vehicles'],
+                    films: ['episode_id', 'opening_crawl', 'director', 'producer', 'release_date', 'characters', 'planets', 'starships', 'vehicles', 'species'],
+                    starships: ['model', 'manufacturer', 'cost_in_credits', 'length', 'max_atmosphering_speed', 'crew', 'passengers', 'cargo_capacity', 'consumables', 'hyperdrive_rating', 'MGLT', 'starship_class', 'pilots', 'films'],
+                    vehicles: ['model', 'manufacturer', 'cost_in_credits', 'length', 'max_atmosphering_speed', 'crew', 'passengers', 'cargo_capacity', 'consumables', 'pilots', 'films'],
+                    species: ['classification', 'designation', 'average_height', 'average_lifespan', 'hair_colors', 'eye_colors', 'skin_colors', 'language', 'homeworld', 'people', 'films'],
+                    planets: ['rotation_period', 'orbital_period', 'diameter', 'climate', 'gravity', 'terrain', 'surface_water', 'population', 'residents', 'films']
+                },
+
+                async init() {
+                    const hash = window.location.hash;
+                    if (hash.includes('id_token=')) {
+                        const token = hash.split('id_token=')[1].split('&')[0];
+                        if (token) {
+                            localStorage.setItem('id_token', token);
+                            this.token = token;
+                            window.history.replaceState(null, null, window.location.pathname);
+                        }
+                    }
+                    if (this.token) await this.checkSession();
+                    try {
+                        const res = await fetch(`${baseUrl}metadata`);
+                        this.metadata = await res.json();
+                    } catch (e) { console.warn("API Offline"); }
+                    this.$watch('mode', (val) => { if (val === 'history') this.fetchHistory(); });
+                    this.$watch('struct.type', () => { this.activeFilters = []; });
+                },
+
+                getHeaders() { return this.token ? { 'Authorization': `Bearer ${this.token}` } : {}; },
+
+                getItemLabel(item) {
+                    if (typeof item === 'string') return item;
+                    if (item && item.query) {
+                        const q = item.query;
+                        if (typeof q === 'object' && q.name) return `${q.name} (${q.type})`;
+                        if (typeof q === 'object' && q.q) return q.q;
+                        return String(q);
+                    }
+                    return "Consulta";
+                },
+
+                async checkSession() {
+                    try {
+                        const res = await fetch(`${baseUrl}me`, { headers: this.getHeaders() });
+                        if (res.ok) {
+                            const data = await res.json();
+                            if (data && data.is_auth !== false) this.user = data;
+                            else this.logout();
+                        }
+                    } catch (e) { this.logout(); }
+                },
+
+                login() { window.location.href = `${baseUrl}login`; },
+
+                logout() {
+                    localStorage.removeItem('id_token');
+                    this.user = null; this.token = null; this.history = []; this.mode = 'natural';
+                },
+
+                async fetchHistory() {
+                    if (!this.token) return;
+                    try {
+                        const res = await fetch(`${baseUrl}history`, { headers: this.getHeaders() });
+                        const data = await res.json();
+                        this.history = data && data.queries ? [...data.queries].reverse() : [];
+                    } catch (e) { console.error("History error"); }
+                },
+
+                formatDate(dateStr) {
+                    if(!dateStr || dateStr === "date") return "";
+                    try { return new Date(dateStr).toLocaleString('pt-BR'); } 
+                    catch (e) { return ""; }
+                },
+
+                toggleFilter(f) { 
+                    this.activeFilters.includes(f) ? this.activeFilters = this.activeFilters.filter(i => i !== f) : this.activeFilters.push(f); 
+                },
+
+                setMode(m) { this.mode = m; },
+
+                async fetchData(type) {
+                    this.loading = true; this.showSuggestion = false; this.error = null;
+                    let fetchUrl = baseUrl;
+                    if (type === 'natural') {
+                        fetchUrl += `?q=${encodeURIComponent(this.naturalQuery)}`;
+                    } else {
+                        const params = new URLSearchParams({...this.struct});
+                        if (this.activeFilters.length > 0) params.append('filter', this.activeFilters.join(','));
+                        fetchUrl += `?${params.toString()}`;
+                    }
+
+                    try {
+                        const res = await fetch(fetchUrl, { headers: this.getHeaders() });
+                        if (res.status === 401) { this.logout(); throw new Error("Sessão expirada."); }
+                        this.response = await res.json();
+                        if (this.response.suggestion && String(this.response.suggestion).trim() !== "" && String(this.response.suggestion) !== "null") {
+                            this.showSuggestion = true;
+                        }
+                    } catch (e) { this.error = e.message; } finally { this.loading = false; }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
