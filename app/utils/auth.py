@@ -24,7 +24,7 @@ def get_google_auth_url():
         "response_type": "code",
         "scope": "openid email profile",
         "access_type": "offline",
-        "prompt": "select_account" # Força a escolha da conta para facilitar testes
+        "prompt": "select_account"
     }
     
     base_url = "https://accounts.google.com/o/oauth2/v2/auth"
@@ -38,13 +38,13 @@ def exchange_code_for_token(code):
         "client_secret": os.getenv("GOOGLE_CLIENT_SECRET"),
         "code": code,
         "grant_type": "authorization_code",
-        # ESTA URL deve ser exatamente a mesma cadastrada no Google Cloud Console
+
         "redirect_uri": "http://127.0.0.1:8080/callback" 
     }
     
     response = requests.post(token_url, data=payload)
     if response.status_code != 200:
-        print(f"Erro Google: {response.text}") # Isso vai te mostrar o erro real no terminal
+        print(f"Erro Google: {response.text}")
         return None
     
     return response.json()
