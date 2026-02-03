@@ -1,37 +1,46 @@
 # Solução: Star Wars Insights API
 
 ## Visão Geral
-O Star Wars Insights API pretende ser uma solução inteligente, escalável e de alto desempenho para transformar a forma como exploramos o universo de Star Wars. Ela tem como objetivo de ser mais do que um simples espelho do SWAPI (Star Wars API), este projeto funciona como uma camada de valor que processa, limpa e correlaciona dados brutos para entregar respostas prontas para o consumo.
+A Star Wars Insights API é uma solução de engenharia de dados inteligente, escalável e de alto desempenho, projetada para transformar a exploração do universo Star Wars.
 
-Por exemplo, se quiser relacionar dados de um personagem com um filme, a API pode fornecer uma correlação entre eles junto com Insights.
+Diferente de um simples proxy ou espelhamento da SWAPI, este projeto atua como uma camada de inteligência. Ela processa, higieniza e correlaciona dados brutos para entregar insights prontos para o consumo, eliminando a necessidade de múltiplas requisições e tratamentos manuais no lado do cliente.
 
 ## Busca Híbrida
 A API elimina a barreira técnica entre o fã da saga e a informação, oferecendo dois caminhos:
 
 ### Query Estruturada
-Aceita filtros tradicionais para buscar dados de personagens, filmes, planetas e naves. Ideal para integrações de sistemas e Dashboards.
-### Linguagem Natural
-Através do processamento de texto, o usuário pode fazer perguntas diretas como: "Quais filmes o Darth Vader atuou." ou "Quem pilota a nave X-wing?" A API entende as perguntas e busca os dados correspondentes.
+Focada em precisão e performance, esta modalidade aceita filtros técnicos tradicionais para buscar dados de personagens, filmes, planetas e naves.
 
-## Sinergia com PowerOfData
-...
+Ideal para: Dashboards de Business Intelligence, integrações B2B e sistemas que exigem alta previsibilidade de resposta.
+
+### Linguagem Natural
+Utilizando o motor NLTK, a API permite que o usuário interaja com o ecossistema Star Wars de forma intuitiva. Através de tokenização e análise de intenção, é possível fazer perguntas diretas:
+
+- "Quais filmes o Darth Vader atuou?"
+- "Qual a altura do Yoda?"
+- "Qual o diretor do filme 'A New Hope'?"
+  
+Ideal para: Chatbots e interfaces de usuários.
+
+
+----
 
 ## Stack Tecnológica
 - Python: 3.11+:
   - Pydantic: Para modelagem de dados
   - Pytest: Para testes unitários
   - NLTK: Para processamento de texto natural
+  - Requests: Para consumo de APIs externas
+  - Diff: Para comparação de textos
 
 - Google Cloud Platform (GCP):
-  - Cloud Functions (Gen2): Escolhida pela suporte a concorrência e execução assíncrona (asyncio), essencial para resolver correlações de dados rapidamente.
+  - Cloud Functions (Gen2): Essencial para resolver correlações de dados rapidamente.
   - API Gateway: Para criação de APIs RESTful
-  - Cloud Storage: Utilizado para implementar um cache de alta disponibilidade e baixo custo, garantindo que a API respeite o rate limit da SWAPI e reduza a latência para o usuário final.
+  - Cloud Firestore: Utilizado para implementar um cache persistente, metadata e historico de pesquisa de usuarios autenticados.
+  - Google Auth: Para autenticação e autorização de usuários.
 
-
-<iframe 
-    src="./html_extras/arch.html" 
-    width="100%" 
-    height="500px" 
-    style="border:none;" 
-    title="Descrição do conteúdo">
-</iframe>
+- Git: Para controle de versões
+- GitHub: Para hospedar o repositório.
+- GitHub Actions: Para construção e entrega contínua dessa documentação.
+- MdBook: Para construção e entrega contínua dessa documentação.
+- VSCode: IDE de desenvolvimento.
