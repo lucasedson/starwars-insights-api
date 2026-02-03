@@ -1,33 +1,76 @@
-swagger: "2.0"
+swagger: '2.0'
 info:
-  title: "Star Wars Insights API"
-  description: "API para busca de insights de Star Wars usando NLP e Firestore."
-  version: "1.0.0"
+  title: Star Wars Insights API
+  description: Interface inteligente para exploração do universo Star Wars via NLP e filtros estruturados.
+  version: 1.0.0
 schemes:
-  - "https"
+  - https
 produces:
-  - "application/json"
+  - application/json
+
+# Configuração de Backend Padrão
 x-google-backend:
-  address: "https://us-east1-pod-ps-backend-python.cloudfunctions.net/star_wars_insights" # URL da sua função
+  address: "https://us-east1-pod-ps-backend-python.cloudfunctions.net/star_wars_insights"
+  path_translation: APPEND_PATH_TO_ADDRESS
 
 paths:
   /:
     get:
-      summary: "Consulta de Insights"
-      operationId: "getInsights"
+      summary: Busca principal (NLP ou Estruturada)
+      operationId: handleRequest
       parameters:
-        - name: "q"
-          in: "query"
-          description: "Pergunta em linguagem natural"
-          type: "string"
-        - name: "name"
-          in: "query"
-          type: "string"
-        - name: "type"
-          in: "query"
-          type: "string"
+        - name: q
+          in: query
+          type: string
+        - name: name
+          in: query
+          type: string
+        - name: type
+          in: query
+          type: string
+        - name: filter
+          in: query
+          type: string
       responses:
         200:
-          description: "Sucesso"
-        400:
-          description: "Parâmetros inválidos"
+          description: Sucesso
+
+  /login:
+    get:
+      summary: Inicia fluxo OAuth2
+      operationId: handleLogin
+      responses:
+        302:
+          description: Redirecionamento
+
+  /callback:
+    get:
+      summary: Processa código do Google
+      operationId: handleCallback
+      responses:
+        200:
+          description: Sucesso
+
+  /me:
+    get:
+      summary: Dados do perfil autenticado
+      operationId: getUserProfile
+      responses:
+        200:
+          description: Sucesso
+
+  /history:
+    get:
+      summary: Log de consultas do usuário
+      operationId: getHistory
+      responses:
+        200:
+          description: Sucesso
+
+  /metadata:
+    get:
+      summary: Entidades e intenções mapeadas
+      operationId: getMetadata
+      responses:
+        200:
+          description: Sucesso

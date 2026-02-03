@@ -50,7 +50,7 @@ class InsightController:
 
             # --- Agora sim o Redirecionamento ---
             # Se chegamos aqui, o token é válido. Agora mandamos para o frontend.
-            frontend_url = "http://127.0.0.1:3000/html_extras/playground.html"
+            frontend_url = "https://lucasedson.github.io/starwars-insights-api/html_extras/playground.html"
             return redirect(f"{frontend_url}#id_token={id_token}")
 
         except Exception as e:
