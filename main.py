@@ -22,7 +22,7 @@ def star_wars_insights(request):
     # --- 1. TRATAMENTO DE CORS (Obrigatório para Frontend) ---
     if request.method == "OPTIONS":
         headers = {
-            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Origin": "https://lucasedson.github.io",
             "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Authorization",
             "Access-Control-Max-Age": "3600"
@@ -30,7 +30,7 @@ def star_wars_insights(request):
         return ("", 204, headers)
 
     # Headers de resposta padrão para todas as outras requisições
-    response_headers = {"Access-Control-Allow-Origin": "*"}
+    response_headers = {"Access-Control-Allow-Origin": "https://lucasedson.github.io"}
 
     # 2. IDENTIFICAÇÃO DO USUÁRIO
     auth_header = request.headers.get("Authorization")
@@ -43,38 +43,38 @@ def star_wars_insights(request):
 
     # Função auxiliar para injetar headers em respostas do controller
     def wrap_cors(controller_response):
-        # Headers que queremos garantir em todas as respostas
+        # Use o seu domínio específico em vez de "*"
         response_headers = {
-            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Origin": "https://lucasedson.github.io",
             "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization"
+            "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With",
+            "Access-Control-Max-Age": "3600"
         }
 
-        # Caso 1: O controller retornou um objeto Response (ex: redirect)
         if isinstance(controller_response, Response):
             for key, value in response_headers.items():
                 controller_response.headers[key] = value
             return controller_response
 
-        # Caso 2: O controller retornou uma tupla (dados, status) ou (dados, status, headers)
         if isinstance(controller_response, tuple):
             res = list(controller_response)
+            # Garante que o terceiro elemento (headers) exista e seja um dict
             if len(res) == 2:
                 res.append(response_headers)
             elif len(res) == 3:
-                res[2].update(response_headers)
+                if res[2] is None:
+                    res[2] = response_headers
+                else:
+                    res[2].update(response_headers)
             return tuple(res)
 
-        # Caso 3: Retornou apenas os dados (string ou dict)
         return controller_response, 200, response_headers
-
+ 
     if path == "login":
-        return controller.handle_login()
+        return wrap_cors(controller.handle_login()) # Adicionado wrap_cors aqui
     
     if path == "callback":
         return wrap_cors(controller.handle_callback(request))
-    
-    
     
     if path == "me":
         return wrap_cors(controller.get_user_status(user_data))
@@ -85,5 +85,5 @@ def star_wars_insights(request):
     if path == "history":
         return wrap_cors(controller.get_my_history(user_data))
     
-    # Busca principal
+    # Busca principal (Root /)
     return wrap_cors(controller.handle_request(request, user_data=user_data))

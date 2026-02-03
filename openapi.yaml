@@ -52,12 +52,29 @@ paths:
           description: Sucesso
 
   /me:
-    get:
-      summary: Dados do perfil autenticado
-      operationId: getUserProfile
-      responses:
-        200:
-          description: Sucesso
+      get:
+        summary: Perfil do Usuário
+        operationId: getUserProfile
+        x-google-backend:
+          address: "https://us-east1-pod-ps-backend-python.cloudfunctions.net/star_wars_insights/me"
+        responses:
+          200:
+            description: Sucesso
+      options:
+        summary: CORS support
+        operationId: corsMe
+        x-google-backend:
+          address: "https://us-east1-pod-ps-backend-python.cloudfunctions.net/star_wars_insights/me"
+        responses:
+          200:
+            description: OK
+            headers:
+              Access-Control-Allow-Origin:
+                type: string
+              Access-Control-Allow-Methods:
+                type: string
+              Access-Control-Allow-Headers:
+                type: string
 
   /history:
     get:
