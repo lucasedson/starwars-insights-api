@@ -36,7 +36,7 @@ class InsightController:
                 "code": code,
                 "client_id": os.getenv("GOOGLE_CLIENT_ID"),
                 "client_secret": os.getenv("GOOGLE_CLIENT_SECRET"),
-                "redirect_uri": "http://localhost:8080/callback", # <--- O PONTO CRÍTICO
+                "redirect_uri": "https://sw-gateway-aaqxefvm.ue.gateway.dev/callback", # <--- O PONTO CRÍTICO
                 "grant_type": "authorization_code",
             }
 
