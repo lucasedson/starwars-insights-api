@@ -20,7 +20,7 @@
 </head>
 <body class="min-h-screen p-4 md:p-12">
 
-    <div class="max-w-6xl mx-auto" x-data="apiHandler()" x-init="init()">
+    <div class="max-w-6xl mx-auto" x-data="apiHandler()">
         <header class="mb-12 flex flex-col md:flex-row justify-between items-center gap-6 border-b border-white/5 pb-8">
             <div class="flex items-center gap-5">
                 <div class="w-12 h-12 bg-sky-500/10 border border-sky-500/30 rounded flex items-center justify-center text-sky-400">
@@ -36,11 +36,11 @@
                 <div class="flex items-center gap-4 pr-6 border-r border-white/10">
                     <template x-if="!user">
                         <button @click="login()" class="flex items-center gap-2 bg-white text-black px-4 py-2 rounded font-bold text-xs hover:bg-slate-200 transition-all uppercase tracking-tight shadow-lg">
-                            <img src="https://www.google.com/favicon.ico" class="w-4 h-4"> Entrar com Google
+                            <img src="https://www.google.com/favicon.ico" class="w-4 h-4"> Login Google
                         </button>
                     </template>
                     <template x-if="user">
-                        <div class="flex items-center gap-4 animate-in fade-in">
+                        <div class="flex items-center gap-4 animate-in fade-in" x-cloak>
                             <div class="text-right">
                                 <p class="text-[10px] font-black uppercase text-white leading-none" x-text="user.name || user.email.split('@')[0]"></p>
                                 <p class="mono text-[9px] text-slate-500" x-text="user.email"></p>
@@ -54,22 +54,19 @@
                 </div>
 
                 <div class="bg-black/40 p-1 rounded border border-white/5 flex gap-1">
-                    <button @click="setMode('natural')" :class="mode === 'natural' ? 'bg-sky-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-300'" class="px-4 py-1.5 rounded text-[10px] font-black uppercase transition-all">Busca Natural</button>
+                    <button @click="setMode('natural')" :class="mode === 'natural' ? 'bg-sky-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-300'" class="px-4 py-1.5 rounded text-[10px] font-black uppercase transition-all">Natural</button>
                     <button @click="setMode('structured')" :class="mode === 'structured' ? 'bg-sky-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-300'" class="px-4 py-1.5 rounded text-[10px] font-black uppercase transition-all">Estruturada</button>
                     <button @click="setMode('history')" :class="mode === 'history' ? 'bg-sky-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-300'" class="px-4 py-1.5 rounded text-[10px] font-black uppercase transition-all">Histórico</button>
                 </div>
             </div>
         </header>
 
-        <main class="bg-[#1f222d] rounded border border-white/5 shadow-2xl p-8 mb-10 hologram-glow">
-            
+        <main class="bg-[#1f222d] rounded border border-white/5 shadow-2xl p-8 mb-10">
             <div x-show="mode === 'natural'" x-transition>
                 <form @submit.prevent="fetchData('natural')" class="flex flex-col gap-4">
-                    <input type="text" x-model="naturalQuery" placeholder="Ex: Qual a altura do Yoda? ou Quais são as naves do Luke Skywalker?" class="flex-1 px-5 py-4 rounded outline-none text-sm font-medium transition-all">
+                    <input type="text" x-model="naturalQuery" placeholder="Ex: Qual a altura do Yoda?" class="flex-1 px-5 py-4 rounded outline-none text-sm font-medium">
                     <div class="flex justify-end">
-                        <button type="submit" :disabled="loading" class="bg-sky-600 hover:bg-sky-500 px-10 py-3 rounded font-black uppercase text-xs tracking-widest disabled:opacity-50 text-white">
-                            <span x-text="loading ? 'Consultando...' : 'Consultar API'"></span>
-                        </button>
+                        <button type="submit" :disabled="loading" class="bg-sky-600 hover:bg-sky-500 px-10 py-3 rounded font-black uppercase text-xs tracking-widest text-white disabled:opacity-50">Consultar</button>
                     </div>
                 </form>
             </div>
@@ -78,45 +75,32 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div class="space-y-2">
                         <label class="mono text-[10px] uppercase text-slate-500 font-bold tracking-widest">Tipo</label>
-                        <select x-model="struct.type" class="w-full px-4 py-3 rounded outline-none appearance-none cursor-pointer">
+                        <select x-model="struct.type" class="w-full px-4 py-3 rounded outline-none appearance-none">
                             <template x-for="(fields, type) in schemaMap">
                                 <option :value="type" x-text="type.toUpperCase()"></option>
                             </template>
                         </select>
                     </div>
                     <div class="md:col-span-2 space-y-2">
-                        <label class="mono text-[10px] uppercase text-slate-500 font-bold tracking-widest">Nome da Entidade</label>
-                        <input list="known-entities" type="text" x-model="struct.name" placeholder="Digite o nome..." class="w-full px-4 py-3 rounded outline-none font-bold">
+                        <label class="mono text-[10px] uppercase text-slate-500 font-bold tracking-widest">Nome</label>
+                        <input list="known-entities" type="text" x-model="struct.name" class="w-full px-4 py-3 rounded outline-none font-bold">
                         <datalist id="known-entities">
                             <template x-for="item in metadata['known_' + struct.type]" :key="item"><option :value="item"></option></template>
                         </datalist>
                     </div>
                 </div>
-
-                <div class="space-y-4">
-                    <label class="mono text-[10px] uppercase text-slate-500 font-bold tracking-widest">Filtros de Atributo</label>
-                    <div class="flex flex-wrap gap-2">
-                        <template x-for="field in schemaMap[struct.type]" :key="field">
-                            <button type="button" @click="toggleFilter(field)"
-                                :class="activeFilters.includes(field) ? 'bg-sky-600 text-white border-sky-400' : 'bg-black/30 text-slate-500 border-white/5'"
-                                class="px-3 py-1.5 rounded text-[10px] border font-bold uppercase transition-all" x-text="field">
-                            </button>
-                        </template>
-                    </div>
-                </div>
-
-                <button @click="fetchData('structured')" :disabled="loading" class="w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded font-black uppercase text-xs tracking-widest text-white">Executar Consulta</button>
+                <button @click="fetchData('structured')" :disabled="loading" class="w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded font-black uppercase text-xs tracking-widest text-white">Executar</button>
             </div>
 
             <div x-show="mode === 'history'" x-transition class="space-y-6">
                 <div class="flex justify-between items-center border-b border-white/5 pb-4">
-                    <h3 class="mono text-xs font-black uppercase text-sky-400 tracking-widest">Histórico de Consultas</h3>
-                    <button @click="fetchHistory()" class="mono text-[9px] text-slate-500 hover:text-white uppercase font-bold transition-colors">Sincronizar</button>
+                    <h3 class="mono text-xs font-black uppercase text-sky-400 tracking-widest">Histórico</h3>
+                    <button @click="fetchHistory()" class="mono text-[9px] text-slate-500 hover:text-white uppercase font-bold">Sincronizar</button>
                 </div>
-                <div class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar pr-2">
+                <div class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar">
                     <template x-for="item in history">
-                        <div class="bg-black/20 p-4 rounded border border-white/5 flex justify-between items-center hover:border-sky-500/50 transition-all group">
-                            <span class="text-sm font-medium text-slate-300 group-hover:text-white" x-text="getItemLabel(item)"></span>
+                        <div class="bg-black/20 p-4 rounded border border-white/5 flex justify-between items-center">
+                            <span class="text-sm font-medium text-slate-300" x-text="getItemLabel(item)"></span>
                             <span class="mono text-[9px] text-slate-600" x-text="formatDate(item.timestamp)"></span>
                         </div>
                     </template>
@@ -124,39 +108,22 @@
             </div>
         </main>
 
-        <div x-show="response && mode !== 'history'" x-cloak class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start pb-12 animate-in fade-in zoom-in duration-500">
+        <div x-show="response && mode !== 'history'" x-cloak class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start pb-12 animate-in fade-in zoom-in">
             <div class="bg-[#1f222d] rounded border border-white/5 overflow-hidden shadow-2xl">
-                <div class="bg-black/20 px-8 py-5 border-b border-white/5 flex justify-between items-center font-black italic">
-                    <h2 class="text-xl text-white uppercase tracking-tighter" x-text="response?.entity"></h2>
-                    <span class="mono text-[9px] bg-sky-500/10 text-sky-400 px-3 py-1 border border-sky-500/20 rounded uppercase" x-text="response?.source"></span>
+                <div class="bg-black/20 px-8 py-5 border-b border-white/5 flex justify-between items-center">
+                    <h2 class="text-xl font-black italic uppercase text-white" x-text="response?.entity"></h2>
                 </div>
                 <div class="p-8 space-y-6 max-h-[600px] overflow-y-auto custom-scrollbar">
                     <template x-for="(value, key) in response?.insight_value">
                         <div class="border-b border-white/5 pb-5 last:border-0">
-                            <label class="mono text-[9px] uppercase text-sky-500 font-bold tracking-widest block mb-2" x-text="key.replace('_', ' ')"></label>
-                            <div class="pl-1">
-                                <template x-if="Array.isArray(value)">
-                                    <div class="flex flex-wrap gap-2">
-                                        <template x-for="item in value">
-                                            <span class="bg-black/40 text-slate-300 px-3 py-1 rounded text-[10px] border border-white/5" x-text="item"></span>
-                                        </template>
-                                    </div>
-                                </template>
-                                <template x-if="!Array.isArray(value)">
-                                    <span class="text-white text-base font-semibold" x-text="value"></span>
-                                </template>
-                            </div>
+                            <label class="mono text-[9px] uppercase text-sky-500 font-bold block mb-2" x-text="key.replace('_', ' ')"></label>
+                            <span class="text-white text-base font-semibold" x-text="value"></span>
                         </div>
                     </template>
                 </div>
             </div>
-
-            <div class="bg-[#10121a] rounded border border-white/5 p-8 font-mono text-[11px] min-h-[500px] flex flex-col shadow-inner">
-                <div class="flex justify-between items-center mb-6 pb-4 border-b border-white/5">
-                    <span class="text-slate-600 font-bold tracking-widest text-[9px]">RAW_OUTPUT.JSON</span>
-                    <button @click="navigator.clipboard.writeText(JSON.stringify(response, null, 2))" class="text-slate-600 hover:text-white uppercase text-[9px] border border-white/5 px-2 py-1 rounded">Copiar</button>
-                </div>
-                <pre class="text-emerald-500/80 overflow-auto flex-1 custom-scrollbar leading-relaxed" x-text="JSON.stringify(response, null, 2)"></pre>
+            <div class="bg-[#10121a] rounded border border-white/5 p-8 font-mono text-[11px] min-h-[500px]">
+                <pre class="text-emerald-500/80 overflow-auto" x-text="JSON.stringify(response, null, 2)"></pre>
             </div>
         </div>
     </div>
@@ -176,54 +143,72 @@
                 user: null,
                 token: localStorage.getItem('id_token') || null,
                 loading: false,
-                showSuggestion: false,
-                error: null,
 
                 schemaMap: {
-                    people: ['birth_year', 'eye_color', 'gender', 'hair_color', 'skin_color', 'height', 'mass', 'homeworld', 'films', 'species', 'starships', 'vehicles'],
-                    films: ['episode_id', 'opening_crawl', 'director', 'producer', 'release_date', 'characters', 'planets', 'starships', 'vehicles', 'species'],
-                    starships: ['model', 'manufacturer', 'cost_in_credits', 'length', 'max_atmosphering_speed', 'crew', 'passengers', 'cargo_capacity', 'consumables', 'hyperdrive_rating', 'MGLT', 'starship_class', 'pilots', 'films'],
-                    vehicles: ['model', 'manufacturer', 'cost_in_credits', 'length', 'max_atmosphering_speed', 'crew', 'passengers', 'cargo_capacity', 'consumables', 'pilots', 'films'],
-                    species: ['classification', 'designation', 'average_height', 'average_lifespan', 'hair_colors', 'eye_colors', 'skin_colors', 'language', 'homeworld', 'people', 'films'],
-                    planets: ['rotation_period', 'orbital_period', 'diameter', 'climate', 'gravity', 'terrain', 'surface_water', 'population', 'residents', 'films']
+                    people: ['birth_year', 'eye_color', 'gender', 'hair_color', 'skin_color', 'height', 'mass', 'homeworld'],
+                    films: ['episode_id', 'director', 'producer', 'release_date'],
+                    starships: ['model', 'manufacturer', 'cost_in_credits', 'length'],
+                    vehicles: ['model', 'manufacturer', 'cost_in_credits', 'length'],
+                    species: ['classification', 'designation', 'average_height'],
+                    planets: ['rotation_period', 'orbital_period', 'diameter']
                 },
 
                 async init() {
-                    // 1. CAPTURAR TOKEN IMEDIATAMENTE NO HASH
+                    console.log("Iniciando SW API Playground...");
+                    
+                    // 1. Verificar se há token no fragmento (após redirect)
                     const hash = window.location.hash;
                     if (hash.includes('id_token=')) {
-                        const tokenPart = hash.split('id_token=')[1].split('&')[0];
-                        if (tokenPart) {
-                            localStorage.setItem('id_token', tokenPart);
-                            this.token = tokenPart;
-                            // Limpa a URL sem dar refresh
+                        const t = hash.split('id_token=')[1].split('&')[0];
+                        if (t) {
+                            console.log("Token detectado na URL!");
+                            this.token = t;
+                            localStorage.setItem('id_token', t);
                             window.history.replaceState(null, null, window.location.pathname);
                         }
                     }
 
-                    // 2. TENTAR CARREGAR SESSÃO
-                    if (this.token) await this.checkSession();
+                    // 2. Se temos token, carregar usuário
+                    if (this.token) {
+                        console.log("Tentando validar sessão com token...");
+                        await this.checkSession();
+                    } else {
+                        console.log("Nenhum token encontrado.");
+                    }
 
-                    // 3. CARREGAR METADATA
+                    // 3. Metadata
                     try {
                         const res = await fetch(`${baseUrl}metadata`);
                         this.metadata = await res.json();
-                    } catch (e) { console.warn("API Metadata offline"); }
-
-                    this.$watch('struct.type', () => { this.activeFilters = []; });
+                    } catch (e) { console.warn("Metadata offline."); }
                 },
 
-                getHeaders() { return this.token ? { 'Authorization': `Bearer ${this.token}` } : {}; },
+                getHeaders() {
+                    return {
+                        'Authorization': `Bearer ${this.token}`,
+                        'Accept': 'application/json'
+                    };
+                },
 
                 async checkSession() {
                     try {
-                        const res = await fetch(`${baseUrl}me`, { headers: this.getHeaders() });
+                        const res = await fetch(`${baseUrl}me`, { 
+                            headers: this.getHeaders(),
+                            mode: 'cors' // Garantir CORS
+                        });
+                        
                         if (res.ok) {
                             const data = await res.json();
-                            if (data && data.is_auth !== false) this.user = data;
-                            else this.logout();
-                        } else { this.logout(); }
-                    } catch (e) { this.logout(); }
+                            console.log("Sessão válida para:", data.email);
+                            this.user = data;
+                        } else {
+                            console.error("Sessão inválida. Status:", res.status);
+                            this.logout();
+                        }
+                    } catch (e) {
+                        console.error("Erro na chamada /me:", e);
+                        this.logout();
+                    }
                 },
 
                 setMode(m) {
@@ -231,19 +216,24 @@
                     if (m === 'history') this.fetchHistory();
                 },
 
-                login() { window.location.href = `${baseUrl}login`; },
+                login() {
+                    console.log("Redirecionando para login...");
+                    window.location.href = `${baseUrl}login`;
+                },
 
                 logout() {
+                    console.log("Encerrando sessão...");
                     localStorage.removeItem('id_token');
-                    this.user = null; this.token = null; this.history = []; this.mode = 'natural';
+                    this.user = null;
+                    this.token = null;
+                    this.history = [];
                 },
 
                 getItemLabel(item) {
                     if (typeof item === 'string') return item;
                     if (item && item.query) {
                         const q = item.query;
-                        if (typeof q === 'object') return q.q || `${q.name} (${q.type})`;
-                        return String(q);
+                        return typeof q === 'object' ? (q.q || q.name) : q;
                     }
                     return "Consulta";
                 },
@@ -252,14 +242,16 @@
                     if (!this.token) return;
                     try {
                         const res = await fetch(`${baseUrl}history`, { headers: this.getHeaders() });
-                        const data = await res.json();
-                        this.history = data && data.queries ? [...data.queries].reverse() : [];
-                    } catch (e) { console.error("Erro no histórico"); }
+                        if (res.ok) {
+                            const data = await res.json();
+                            this.history = data.queries ? [...data.queries].reverse() : [];
+                        }
+                    } catch (e) { console.error("Erro histórico:", e); }
                 },
 
                 formatDate(dateStr) {
                     if(!dateStr || dateStr === "date") return "";
-                    try { return new Date(dateStr).toLocaleString('pt-BR', {hour: '2-digit', minute:'2-digit'}); } catch (e) { return ""; }
+                    try { return new Date(dateStr).toLocaleString('pt-BR'); } catch (e) { return ""; }
                 },
 
                 toggleFilter(f) { 
@@ -267,21 +259,19 @@
                 },
 
                 async fetchData(type) {
-                    this.loading = true; this.showSuggestion = false; this.error = null;
+                    this.loading = true; this.error = null;
                     let url = baseUrl;
                     if (type === 'natural') {
                         url += `?q=${encodeURIComponent(this.naturalQuery)}`;
                     } else {
-                        const params = new URLSearchParams();
-                        params.append('name', this.struct.name);
-                        params.append('type', this.struct.type);
+                        const params = new URLSearchParams({ name: this.struct.name, type: this.struct.type });
                         if (this.activeFilters.length > 0) params.append('filter', this.activeFilters.join(','));
                         url += `?${params.toString()}`;
                     }
 
                     try {
                         const res = await fetch(url, { headers: this.getHeaders() });
-                        if (res.status === 401) { this.logout(); throw new Error("Sessão expirada."); }
+                        if (res.status === 401) throw new Error("Não autorizado.");
                         this.response = await res.json();
                     } catch (e) { this.error = e.message; } finally { this.loading = false; }
                 }
