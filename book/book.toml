@@ -1,4 +1,7 @@
 [book]
 title = "Starwars Insights API - Documentação"
 authors = ["Lucas Edson"]
-language = "en"
+language = "pt-br"
+
+[build]
+build-dir = "../docs"
