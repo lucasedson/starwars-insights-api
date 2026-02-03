@@ -27,7 +27,7 @@
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-black tracking-tighter uppercase italic">Star Wars Insight <span class="text-sky-500">API</span></h1>
+                    <h1 class="text-2xl font-black tracking-tighter uppercase italic text-white">Star Wars Insight <span class="text-sky-500">API</span></h1>
                     <p class="mono text-[10px] text-slate-500 tracking-widest uppercase">https://sw-gateway-aaqxefvm.ue.gateway.dev/</p>
                 </div>
             </div>
@@ -42,7 +42,7 @@
                     <template x-if="user">
                         <div class="flex items-center gap-4 animate-in fade-in">
                             <div class="text-right">
-                                <p class="text-[10px] font-black uppercase leading-none" x-text="user.name || user.email.split('@')[0]"></p>
+                                <p class="text-[10px] font-black uppercase text-white leading-none" x-text="user.name || user.email.split('@')[0]"></p>
                                 <p class="mono text-[9px] text-slate-500" x-text="user.email"></p>
                             </div>
                             <img :src="user.picture || user.avatar_url || 'https://ui-avatars.com/api/?name='+user.email" class="w-9 h-9 rounded border border-white/10 object-cover shadow-lg">
@@ -54,19 +54,20 @@
                 </div>
 
                 <div class="bg-black/40 p-1 rounded border border-white/5 flex gap-1">
-                    <button @click="setMode('natural')" :class="mode === 'natural' ? 'bg-sky-600 text-white' : 'text-slate-500'" class="px-4 py-1.5 rounded text-[10px] font-black uppercase transition-all">Natural</button>
-                    <button @click="setMode('structured')" :class="mode === 'structured' ? 'bg-sky-600 text-white' : 'text-slate-500'" class="px-4 py-1.5 rounded text-[10px] font-black uppercase transition-all">Estruturada</button>
-                    <button @click="setMode('history')" :class="mode === 'history' ? 'bg-sky-600 text-white' : 'text-slate-500'" class="px-4 py-1.5 rounded text-[10px] font-black uppercase transition-all">Histórico</button>
+                    <button @click="setMode('natural')" :class="mode === 'natural' ? 'bg-sky-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-300'" class="px-4 py-1.5 rounded text-[10px] font-black uppercase transition-all">Busca Natural</button>
+                    <button @click="setMode('structured')" :class="mode === 'structured' ? 'bg-sky-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-300'" class="px-4 py-1.5 rounded text-[10px] font-black uppercase transition-all">Estruturada</button>
+                    <button @click="setMode('history')" :class="mode === 'history' ? 'bg-sky-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-300'" class="px-4 py-1.5 rounded text-[10px] font-black uppercase transition-all">Histórico</button>
                 </div>
             </div>
         </header>
 
-        <main class="bg-[#1f222d] rounded border border-white/5 shadow-2xl p-8 mb-10">
+        <main class="bg-[#1f222d] rounded border border-white/5 shadow-2xl p-8 mb-10 hologram-glow">
+            
             <div x-show="mode === 'natural'" x-transition>
                 <form @submit.prevent="fetchData('natural')" class="flex flex-col gap-4">
                     <input type="text" x-model="naturalQuery" placeholder="Ex: Qual a altura do Yoda? ou Quais são as naves do Luke Skywalker?" class="flex-1 px-5 py-4 rounded outline-none text-sm font-medium transition-all">
                     <div class="flex justify-end">
-                        <button type="submit" :disabled="loading" class="bg-sky-600 hover:bg-sky-500 px-10 py-3 rounded font-black uppercase text-xs tracking-widest disabled:opacity-50">
+                        <button type="submit" :disabled="loading" class="bg-sky-600 hover:bg-sky-500 px-10 py-3 rounded font-black uppercase text-xs tracking-widest disabled:opacity-50 text-white">
                             <span x-text="loading ? 'Consultando...' : 'Consultar API'"></span>
                         </button>
                     </div>
@@ -77,7 +78,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div class="space-y-2">
                         <label class="mono text-[10px] uppercase text-slate-500 font-bold tracking-widest">Tipo</label>
-                        <select x-model="struct.type" class="w-full px-4 py-3 rounded outline-none">
+                        <select x-model="struct.type" class="w-full px-4 py-3 rounded outline-none appearance-none cursor-pointer">
                             <template x-for="(fields, type) in schemaMap">
                                 <option :value="type" x-text="type.toUpperCase()"></option>
                             </template>
@@ -91,8 +92,9 @@
                         </datalist>
                     </div>
                 </div>
+
                 <div class="space-y-4">
-                    <label class="mono text-[10px] uppercase text-slate-500 font-bold tracking-widest">Filtros</label>
+                    <label class="mono text-[10px] uppercase text-slate-500 font-bold tracking-widest">Filtros de Atributo</label>
                     <div class="flex flex-wrap gap-2">
                         <template x-for="field in schemaMap[struct.type]" :key="field">
                             <button type="button" @click="toggleFilter(field)"
@@ -102,18 +104,19 @@
                         </template>
                     </div>
                 </div>
-                <button @click="fetchData('structured')" :disabled="loading" class="w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded font-black uppercase text-xs tracking-widest">Executar Consulta</button>
+
+                <button @click="fetchData('structured')" :disabled="loading" class="w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded font-black uppercase text-xs tracking-widest text-white">Executar Consulta</button>
             </div>
 
             <div x-show="mode === 'history'" x-transition class="space-y-6">
                 <div class="flex justify-between items-center border-b border-white/5 pb-4">
                     <h3 class="mono text-xs font-black uppercase text-sky-400 tracking-widest">Histórico de Consultas</h3>
-                    <button @click="fetchHistory()" class="mono text-[9px] text-slate-500 hover:text-white uppercase">Sincronizar</button>
+                    <button @click="fetchHistory()" class="mono text-[9px] text-slate-500 hover:text-white uppercase font-bold transition-colors">Sincronizar</button>
                 </div>
-                <div class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar">
+                <div class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar pr-2">
                     <template x-for="item in history">
-                        <div class="bg-black/20 p-4 rounded border border-white/5 flex justify-between items-center transition-all hover:border-white/20">
-                            <span class="text-sm font-medium text-slate-300" x-text="getItemLabel(item)"></span>
+                        <div class="bg-black/20 p-4 rounded border border-white/5 flex justify-between items-center hover:border-sky-500/50 transition-all group">
+                            <span class="text-sm font-medium text-slate-300 group-hover:text-white" x-text="getItemLabel(item)"></span>
                             <span class="mono text-[9px] text-slate-600" x-text="formatDate(item.timestamp)"></span>
                         </div>
                     </template>
@@ -123,9 +126,9 @@
 
         <div x-show="response && mode !== 'history'" x-cloak class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start pb-12 animate-in fade-in zoom-in duration-500">
             <div class="bg-[#1f222d] rounded border border-white/5 overflow-hidden shadow-2xl">
-                <div class="bg-black/20 px-8 py-5 border-b border-white/5 flex justify-between items-center">
-                    <h2 class="text-xl font-black italic uppercase text-sky-400" x-text="response?.entity"></h2>
-                    <span class="mono text-[9px] bg-sky-500/10 text-sky-400 px-3 py-1 border border-sky-500/20 rounded uppercase font-bold" x-text="response?.source"></span>
+                <div class="bg-black/20 px-8 py-5 border-b border-white/5 flex justify-between items-center font-black italic">
+                    <h2 class="text-xl text-white uppercase tracking-tighter" x-text="response?.entity"></h2>
+                    <span class="mono text-[9px] bg-sky-500/10 text-sky-400 px-3 py-1 border border-sky-500/20 rounded uppercase" x-text="response?.source"></span>
                 </div>
                 <div class="p-8 space-y-6 max-h-[600px] overflow-y-auto custom-scrollbar">
                     <template x-for="(value, key) in response?.insight_value">
@@ -140,21 +143,21 @@
                                     </div>
                                 </template>
                                 <template x-if="!Array.isArray(value)">
-                                    <span class="text-slate-100 text-base font-semibold" x-text="value"></span>
+                                    <span class="text-white text-base font-semibold" x-text="value"></span>
                                 </template>
                             </div>
                         </div>
                     </template>
                 </div>
             </div>
-            <div class="bg-[#10121a] rounded border border-white/5 p-8 font-mono text-[11px] min-h-[500px] flex flex-col">
+
+            <div class="bg-[#10121a] rounded border border-white/5 p-8 font-mono text-[11px] min-h-[500px] flex flex-col shadow-inner">
+                <div class="flex justify-between items-center mb-6 pb-4 border-b border-white/5">
+                    <span class="text-slate-600 font-bold tracking-widest text-[9px]">RAW_OUTPUT.JSON</span>
+                    <button @click="navigator.clipboard.writeText(JSON.stringify(response, null, 2))" class="text-slate-600 hover:text-white uppercase text-[9px] border border-white/5 px-2 py-1 rounded">Copiar</button>
+                </div>
                 <pre class="text-emerald-500/80 overflow-auto flex-1 custom-scrollbar leading-relaxed" x-text="JSON.stringify(response, null, 2)"></pre>
             </div>
-        </div>
-
-        <div x-show="error" x-cloak class="fixed bottom-8 right-8 p-4 bg-red-950 border border-red-500/50 text-red-200 rounded shadow-2xl z-50 flex items-center gap-4">
-            <span class="text-xs font-bold uppercase" x-text="error"></span>
-            <button @click="error = null" class="ml-4 font-black">×</button>
         </div>
     </div>
 
@@ -186,67 +189,53 @@
                 },
 
                 async init() {
-                    // 1. CAPTURA O TOKEN DO HASH IMEDIATAMENTE (CORREÇÃO PARA PRODUÇÃO)
+                    // 1. CAPTURAR TOKEN IMEDIATAMENTE NO HASH
                     const hash = window.location.hash;
                     if (hash.includes('id_token=')) {
                         const tokenPart = hash.split('id_token=')[1].split('&')[0];
                         if (tokenPart) {
-                            console.log("Token capturado no redirect!");
-                            this.token = tokenPart;
                             localStorage.setItem('id_token', tokenPart);
-                            // Limpa a URL sem dar reload
+                            this.token = tokenPart;
+                            // Limpa a URL sem dar refresh
                             window.history.replaceState(null, null, window.location.pathname);
                         }
                     }
 
-                    // 2. VALIDA SESSÃO SE HOUVER TOKEN
-                    if (this.token) {
-                        await this.checkSession();
-                    }
+                    // 2. TENTAR CARREGAR SESSÃO
+                    if (this.token) await this.checkSession();
 
-                    // 3. CARREGA METADATA
+                    // 3. CARREGAR METADATA
                     try {
                         const res = await fetch(`${baseUrl}metadata`);
                         this.metadata = await res.json();
-                    } catch (e) { console.warn("API Metadata Offline"); }
+                    } catch (e) { console.warn("API Metadata offline"); }
 
-                    this.$watch('mode', (val) => { if (val === 'history') this.fetchHistory(); });
+                    this.$watch('struct.type', () => { this.activeFilters = []; });
                 },
 
-                getHeaders() {
-                    return this.token ? { 'Authorization': `Bearer ${this.token}` } : {};
-                },
+                getHeaders() { return this.token ? { 'Authorization': `Bearer ${this.token}` } : {}; },
 
                 async checkSession() {
                     try {
                         const res = await fetch(`${baseUrl}me`, { headers: this.getHeaders() });
                         if (res.ok) {
                             const data = await res.json();
-                            if (data && data.is_auth !== false) {
-                                this.user = data;
-                            } else {
-                                this.logout();
-                            }
-                        } else if (res.status === 401) {
-                            this.logout();
-                        }
-                    } catch (e) { 
-                        console.error("Auth check failed:", e);
-                        this.logout(); 
-                    }
+                            if (data && data.is_auth !== false) this.user = data;
+                            else this.logout();
+                        } else { this.logout(); }
+                    } catch (e) { this.logout(); }
                 },
 
-                login() {
-                    // GARANTE QUE O REDIRECT SAIBA ONDE ESTÁ O GITHUB PAGES
-                    window.location.href = `${baseUrl}login`;
+                setMode(m) {
+                    this.mode = m;
+                    if (m === 'history') this.fetchHistory();
                 },
+
+                login() { window.location.href = `${baseUrl}login`; },
 
                 logout() {
                     localStorage.removeItem('id_token');
-                    this.user = null;
-                    this.token = null;
-                    this.history = [];
-                    this.mode = 'natural';
+                    this.user = null; this.token = null; this.history = []; this.mode = 'natural';
                 },
 
                 getItemLabel(item) {
@@ -265,12 +254,12 @@
                         const res = await fetch(`${baseUrl}history`, { headers: this.getHeaders() });
                         const data = await res.json();
                         this.history = data && data.queries ? [...data.queries].reverse() : [];
-                    } catch (e) { this.error = "Histórico não disponível."; }
+                    } catch (e) { console.error("Erro no histórico"); }
                 },
 
                 formatDate(dateStr) {
                     if(!dateStr || dateStr === "date") return "";
-                    try { return new Date(dateStr).toLocaleString('pt-BR'); } catch (e) { return ""; }
+                    try { return new Date(dateStr).toLocaleString('pt-BR', {hour: '2-digit', minute:'2-digit'}); } catch (e) { return ""; }
                 },
 
                 toggleFilter(f) { 
@@ -294,9 +283,6 @@
                         const res = await fetch(url, { headers: this.getHeaders() });
                         if (res.status === 401) { this.logout(); throw new Error("Sessão expirada."); }
                         this.response = await res.json();
-                        if (this.response.suggestion && String(this.response.suggestion).trim() !== "" && String(this.response.suggestion) !== "null") {
-                            this.showSuggestion = true;
-                        }
                     } catch (e) { this.error = e.message; } finally { this.loading = false; }
                 }
             }
