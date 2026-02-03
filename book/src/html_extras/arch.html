@@ -73,154 +73,180 @@
     // --- Data Injected from Export ---
     const initialNodes = [
   {
-    "id": "actor_user",
+    "id": "user_ext",
     "type": "c4-person",
     "position": {
-      "x": 0,
+      "x": 175,
       "y": 0
     },
     "data": {
-      "id": "actor_user",
-      "label": "Usuário",
+      "id": "user_ext",
+      "label": "Usuário / Client",
       "c4Type": "person",
-      "description": "### Interface de Consumo\nAgente externo que interage com o ecossistema para obter informações sobre o universo Star Wars.\n\n**Capacidades:**\n- Realiza consultas via parâmetros técnicos (`?name=...&filter=...`).\n- Envia perguntas em linguagem natural (PT/EN).",
-      "technology": "HTTP/REST",
+      "description": "Usuário interagindo via Playground ou Client API.",
       "parentId": null
     }
   },
   {
-    "id": "sys_sw_insights",
+    "id": "auth_google",
     "type": "c4-software_system",
     "position": {
       "x": 0,
-      "y": 300
+      "y": 600
     },
     "data": {
-      "id": "sys_sw_insights",
-      "label": "Star Wars Insights",
+      "id": "auth_google",
+      "label": "Google Auth Service",
       "c4Type": "software_system",
-      "description": "### 1. Objetivo Central\nDesenvolvimento de uma camada de inteligência e orquestração sobre a SWAPI, focada em transformar dados brutos de entidades galácticas em insights estruturados, garantindo alta disponibilidade e baixo tempo de resposta.\n\n### 2. Performance e Qualidade de Dados\nA arquitetura prioriza a integridade através da **Hidratação de Dados Assíncrona**. Utilizando `asyncio` e `httpx`, o sistema executa o fetch paralelo de relacionamentos (ex: pilotos e naves), reduzindo o gargalo de I/O e garantindo um payload completo e normalizado sem degradação de performance.\n\n### 3. Consumo via Query Parameters\nInterface técnica que permite filtragem direta e granular. Através do endpoint principal, o sistema processa parâmetros como `/?name=luke&filter=starships`, mapeando-os diretamente para a lógica de busca otimizada no banco de documentos e na API de origem.\n\n### 4. Processamento de Linguagem Natural (NLP)\nEngine bilíngue (PT/EN) baseada em **NLTK** que atua na extração de intenções. O sistema traduz sentenças complexas do usuário em filtros técnicos, utilizando técnicas de tokenização e remoção de stopwords para identificar a entidade alvo e o atributo desejado.\n\n### 5. Estratégia de Cache Multi-Camada\nImplementação do **Cache-Aside Pattern** para otimização de custos e RTT:\n- **L1 (Cache Volátil):** Redis (Upstash) para respostas em milissegundos de requisições repetitivas.\n- **L2 (Cache Persistente):** GCP Firestore para persistência de longo prazo, garantindo resiliência caso a API externa esteja instável.",
-      "technology": "GCP Cloud Ecosystem",
+      "description": "Provedor de identidade para autenticação OAuth2.",
       "parentId": null
     }
   },
   {
-    "id": "con_api_orchestrator",
+    "id": "swapi_ext",
+    "type": "c4-software_system",
+    "position": {
+      "x": 350,
+      "y": 600
+    },
+    "data": {
+      "id": "swapi_ext",
+      "label": "SWAPI (External)",
+      "c4Type": "software_system",
+      "description": "API original de Star Wars (Fonte de dados primária).",
+      "parentId": null
+    }
+  },
+  {
+    "id": "sys_main",
+    "type": "c4-software_system",
+    "position": {
+      "x": 340,
+      "y": 300
+    },
+    "data": {
+      "id": "sys_main",
+      "label": "Star Wars Insights Platform",
+      "c4Type": "software_system",
+      "description": "Ecossistema inteligente, escalável e de alto desempenho, projetada para transformar a exploração do universo Star Wars.",
+      "parentId": null
+    }
+  },
+  {
+    "id": "api_gateway",
     "type": "c4-container",
     "position": {
-      "x": 525,
+      "x": 175,
       "y": 0
     },
     "data": {
-      "id": "con_api_orchestrator",
-      "label": "API Orquestradora",
+      "id": "api_gateway",
+      "label": "API Gateway",
       "c4Type": "container",
-      "description": "### Core de Orquestração\nContainer responsável pela lógica de controle e governança dos dados. Gerencia a precedência de busca entre as camadas de cache e a API externa.",
-      "technology": "Python / Cloud Functions Gen2",
-      "parentId": "sys_sw_insights"
+      "description": "Ponto de entrada e gerenciamento de tráfego.",
+      "parentId": "sys_main"
     }
   },
   {
-    "id": "con_nlp_service",
+    "id": "cf_backend",
     "type": "c4-container",
     "position": {
-      "x": 0,
+      "x": 175,
       "y": 300
     },
     "data": {
-      "id": "con_nlp_service",
-      "label": "Microserviço NLP",
+      "id": "cf_backend",
+      "label": "Cloud Function (Python)",
       "c4Type": "container",
-      "description": "### Tradutor de Intenções\nEspecializado em normalizar strings em comandos técnicos. Utiliza NLTK para processamento de linguagem e Difflib para correção de termos (Fuzzy Matching).",
-      "technology": "Python / NLTK",
-      "parentId": "sys_sw_insights"
+      "description": "## Orquestrador serverless que executa a lógica de negócio em Python.",
+      "parentId": "sys_main"
     }
   },
   {
-    "id": "cmp_redis_cache",
+    "id": "nlp_engine",
     "type": "c4-component",
+    "position": {
+      "x": 0,
+      "y": 600
+    },
+    "data": {
+      "id": "nlp_engine",
+      "label": "NLTK Engine",
+      "c4Type": "component",
+      "description": "Motor de processamento de linguagem natural e Fuzzy Matching.",
+      "parentId": "sys_main"
+    }
+  },
+  {
+    "id": "firestore_db",
+    "type": "c4-container",
     "position": {
       "x": 350,
-      "y": 300
+      "y": 600
     },
     "data": {
-      "id": "cmp_redis_cache",
-      "label": "Redis Cache (L1)",
-      "c4Type": "component",
-      "description": "### Camada de Velocidade\nArmazenamento volátil (In-memory) para redução imediata de latência em requisições de alta frequência.",
-      "technology": "Redis / Upstash",
-      "parentId": "sys_sw_insights"
-    }
-  },
-  {
-    "id": "cmp_firestore_db",
-    "type": "c4-component",
-    "position": {
-      "x": 700,
-      "y": 300
-    },
-    "data": {
-      "id": "cmp_firestore_db",
-      "label": "Persistent DB (L2)",
-      "c4Type": "component",
-      "description": "### Camada de Persistência\nBanco de documentos para armazenamento de longo prazo e fallback de resiliência.",
-      "technology": "GCP Firestore",
-      "parentId": "sys_sw_insights"
-    }
-  },
-  {
-    "id": "cmp_swapi_client",
-    "type": "c4-component",
-    "position": {
-      "x": 1050,
-      "y": 300
-    },
-    "data": {
-      "id": "cmp_swapi_client",
-      "label": "SWAPI Client",
-      "c4Type": "component",
-      "description": "### Interface Externa\nCliente HTTP assíncrono projetado para consumo resiliente da API oficial.",
-      "technology": "httpx / AsyncIO",
-      "parentId": "sys_sw_insights"
+      "id": "firestore_db",
+      "label": "GCP Firestore",
+      "c4Type": "container",
+      "description": "Persistência de logs de busca e cache de documentos.",
+      "parentId": "sys_main"
     }
   }
 ];
     const initialEdges = [
   {
-    "id": "rel_user_api",
-    "source": "actor_user",
-    "target": "con_api_orchestrator",
-    "label": "Faz perguntas (Natural/Parametrizada)"
+    "id": "rel_auth",
+    "source": "user_ext",
+    "target": "auth_google",
+    "label": "1. Obtém ID Token"
   },
   {
-    "id": "rel_api_nlp",
-    "source": "con_api_orchestrator",
-    "target": "con_nlp_service",
-    "label": "Solicita extração de intenção"
+    "id": "rel_request",
+    "source": "user_ext",
+    "target": "api_gateway",
+    "label": "2. Envia Query (Bearer)"
   },
   {
-    "id": "rel_api_redis",
-    "source": "con_api_orchestrator",
-    "target": "cmp_redis_cache",
-    "label": "Leitura/Escrita rápida"
+    "id": "rel_gw_to_cf",
+    "source": "api_gateway",
+    "target": "cf_backend",
+    "label": "Encaminha requisição"
   },
   {
-    "id": "rel_api_firestore",
-    "source": "con_api_orchestrator",
-    "target": "cmp_firestore_db",
-    "label": "Persistência de dados"
+    "id": "rel_nlp",
+    "source": "cf_backend",
+    "target": "nlp_engine",
+    "label": "Extrai intenção"
   },
   {
-    "id": "rel_api_swapi",
-    "source": "con_api_orchestrator",
-    "target": "cmp_swapi_client",
-    "label": "Busca dados originais"
+    "id": "rel_db",
+    "source": "cf_backend",
+    "target": "firestore_db",
+    "label": "Cache e Histórico"
   },
   {
-    "id": "rel-5xdwcc1f6",
-    "source": "actor_user",
-    "target": "sys_sw_insights",
-    "label": ""
+    "id": "rel_external",
+    "source": "cf_backend",
+    "target": "swapi_ext",
+    "label": "Busca dados (Cache-miss)"
+  },
+  {
+    "id": "rel-3avnxmbex",
+    "source": "user_ext",
+    "target": "sys_main",
+    "label": "Acessa"
+  },
+  {
+    "id": "rel-wgx3jzitw",
+    "source": "sys_main",
+    "target": "swapi_ext",
+    "label": "Captura Informações"
+  },
+  {
+    "id": "rel-vpp1v0zjn",
+    "source": "sys_main",
+    "target": "auth_google",
+    "label": "Realiza Integração de Auth"
   }
 ];
     // ---------------------------------
