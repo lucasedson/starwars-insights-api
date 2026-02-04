@@ -3,13 +3,15 @@ from flask import redirect
 import os
 import requests
 import logging
-
-client_id = os.getenv("GOOGLE_CLIENT_ID")
-client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
-api_gateway_url = os.getenv("API_GATEWAY_URL")
-frontend_url = os.getenv("FRONTEND_URL")
+from dotenv import load_dotenv
 
 class AuthController:
+    def __init__(self):
+        load_dotenv()
+        self.client_id = os.getenv("GOOGLE_CLIENT_ID")
+        self.client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
+        self.api_gateway_url = os.getenv("API_GATEWAY_URL")
+        self.frontend_url = os.getenv("FRONTEND_URL")
 
     def handle_login(self):
         '''Redireciona o usuário para a autenticação do Google.'''
@@ -26,9 +28,9 @@ class AuthController:
             token_endpoint = "https://oauth2.googleapis.com/token"
             data = {
                 "code": code,
-                "client_id": client_id,
-                "client_secret": client_secret,
-                "redirect_uri": f"{api_gateway_url}/callback",
+                "client_id": self.client_id,
+                "client_secret": self.client_secret,
+                "redirect_uri": f"{self.api_gateway_url}/callback",
                 "grant_type": "authorization_code",
             }
 
@@ -41,7 +43,7 @@ class AuthController:
             id_token = token_data.get("id_token")
 
 
-            return redirect(f"{frontend_url}#id_token={id_token}")
+            return redirect(f"{self.frontend_url}#id_token={id_token}")
 
         except Exception as e:
             return {"error": str(e)}, 500

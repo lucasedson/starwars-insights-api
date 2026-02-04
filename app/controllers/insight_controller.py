@@ -1,12 +1,7 @@
 from app.views.responses import format_insight_response
 from app.controllers.nlp_controller import NLPController
-import os
 from app.models.data_service import DataService
 
-client_id = os.getenv("GOOGLE_CLIENT_ID")
-client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
-api_gateway_url = os.getenv("API_GATEWAY_URL")
-frontend_url = os.getenv("FRONTEND_URL")
 class InsightController:
     def __init__(self, db_manager, swapi_client):
         

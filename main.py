@@ -17,13 +17,13 @@ load_dotenv(dotenv_path=base_path / ".env")
 
 db_manager = FirestoreManager(os.getenv("GCP_PROJECT_ID"))
 frontend_url = os.getenv("FRONTEND_URL")
+frontend_short_url = os.getenv("FRONTEND_SHORT_URL")
 swapi_client = SWAPIClient()
 insight_controller = InsightController(db_manager, swapi_client)
 auth_controller = AuthController()
 
 @functions_framework.http
 def star_wars_insights(request):
-    
     """
     Função principal do Cloud Function, responsável por lidar com requisições HTTP.
     
@@ -39,7 +39,7 @@ def star_wars_insights(request):
     """
     if request.method == "OPTIONS":
         headers = {
-            "Access-Control-Allow-Origin": frontend_url,
+            "Access-Control-Allow-Origin": frontend_short_url,
             "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Authorization",
             "Access-Control-Max-Age": "3600"
@@ -65,9 +65,8 @@ def star_wars_insights(request):
 
 
     def wrap_cors(controller_response):
-        # Use o seu domínio específico em vez de "*"
         response_headers = {
-            "Access-Control-Allow-Origin": "https://lucasedson.github.io",
+            "Access-Control-Allow-Origin": frontend_short_url,
             "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With",
             "Access-Control-Max-Age": "3600"
@@ -80,7 +79,6 @@ def star_wars_insights(request):
 
         if isinstance(controller_response, tuple):
             res = list(controller_response)
-            # Garante que o terceiro elemento (headers) exista e seja um dict
             if len(res) == 2:
                 res.append(response_headers)
             elif len(res) == 3:

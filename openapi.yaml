@@ -79,6 +79,8 @@ paths:
     options:
       summary: CORS Me
       operationId: corsMe
+      x-google-backend:
+        address: "https://us-east1-pod-ps-backend-python.cloudfunctions.net/star_wars_insights/me"
       responses:
         200:
           description: OK
