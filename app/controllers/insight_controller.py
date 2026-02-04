@@ -1,5 +1,5 @@
 from app.views.responses import format_insight_response
-from app.controllers.nlp_controller import NLPController
+from app.models.nlp_service import NLPService
 from app.models.data_service import DataService
 
 class InsightController:
@@ -28,7 +28,7 @@ class InsightController:
         '''
         self.db = db_manager
         self.swapi = swapi_client
-        self.nlp = NLPController(self.db)
+        self.nlp = NLPService(self.db)
 
         self.data_service = DataService(self.db, self.swapi)
 
