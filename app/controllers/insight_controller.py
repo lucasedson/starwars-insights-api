@@ -13,6 +13,28 @@ api_gateway_url = os.getenv("API_GATEWAY_URL")
 frontend_url = os.getenv("FRONTEND_URL")
 class InsightController:
     def __init__(self, db_manager, swapi_client):
+        
+        '''
+        Inicializa o controlador de insights.
+
+        Parameters
+        ----------
+        db_manager : app.models.database.FirestoreManager
+            Gerenciador de banco de dados do Firebase.
+        swapi_client : app.models.swapi.SWAPIClient
+            Cliente da API do SWAPI.
+
+        Attributes
+        -------
+        db : app.models.database.FirestoreManager
+            Gerenciador de banco de dados do Firebase.
+        swapi : app.models.swapi.SWAPIClient
+            Cliente da API do SWAPI.
+        np : app.controllers.nlp_controller.NLPController
+            Controlador de entidades nomeadas.
+        data_service : app.models.data_service.DataService
+            Servi o de dados do Star Wars.
+        '''
         self.db = db_manager
         self.swapi = swapi_client
         self.nlp = NLPController(self.db)
