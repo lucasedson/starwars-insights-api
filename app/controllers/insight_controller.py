@@ -20,9 +20,11 @@ class InsightController:
         self.data_service = DataService(self.db, self.swapi)
 
     def handle_login(self):
+        '''Redireciona o usuário para a autenticação do Google.'''
         return redirect(get_google_auth_url())
 
     def handle_callback(self, request):
+        '''Recebe o código de autenticação do Google e retorna o token de acesso ao front.'''
         code = request.args.get('code')
         if not code:
             return {"error": "No code provided"}, 400
@@ -51,33 +53,42 @@ class InsightController:
         except Exception as e:
             return {"error": str(e)}, 500
     def get_user(self, user_data):
-        # Se chegamos aqui e user_data existe, mas o e-mail é da conta de serviço,
-        # significa que estamos em produção e o token original foi trocado.
+        """
+        Verifica se o usuário está autenticado e retorna o status de autenticação.
         
-        # DICA: Verifique se o objeto já tem os campos que o AlpineJS espera
+        Parameters
+        ----------
+        user_data : dict
+            Dados do usuário, incluindo o e-mail.
+        
+        Returns
+        -------
+        dict
+            Dicionário com o status de autenticação do usuário.
+        int
+            Código de status HTTP.
+        """
         if user_data:
             user_data["is_auth"] = True
-            # Garante que não retorne o e-mail da Service Account para o front
+
             if "gserviceaccount.com" in user_data.get("email", ""):
-                user_data["name"] = "Usuário Cloud" # Fallback visual
+                user_data["name"] = "Usuário Cloud"
             
             logging.info(f"🔥 [AUTH] Enviando status para o front: {user_data.get('email')}")
             return user_data, 200
 
-        return {"is_auth": False}, 200
+        return {"is_auth": False}, 401
         
 
     def get_known_entities(self):
-        """Retorna todas as entidades conhecidas catalogadas no sistema."""
+        '''Retorna todas as entidades conhecidas catalogadas no sistema.'''
         settings = self.db.get_metadata("nlp_settings") or {}
         
-        # Filtramos apenas as chaves que começam com 'known_'
         known_data = {
             key: value for key, value in settings.items() 
             if key.startswith("known_")
         }
         
-        # Caso o documento esteja vazio, retornamos as listas vazias para manter o contrato
         default_structure = {
             "known_films": [], "known_people": [], "known_planets": [],
             "known_starships": [], "known_species": [], "known_vehicles": []
@@ -86,6 +97,17 @@ class InsightController:
         return {**default_structure, **known_data}, 200
 
     def get_my_history(self, user_data=None):
+        '''Retorna a lista de histórico de buscas do usuário.
+        
+        Parameters
+        ----------
+        user_data : dict
+            Dados do usuário, incluindo o e-mail.
+                
+        Notes
+        -----
+        Se o usuário não estiver autenticado, retorna um erro 401.'''
+    
         if not user_data:
             return {"error": "User not authenticated"}, 401
         
@@ -94,6 +116,55 @@ class InsightController:
     
     
     def handle_insight(self, request, user_data=None):
+        '''Trata uma requisição de insight, podendo vir de uma busca natural ou de uma busca parametrizada.
+    
+        Se a requisição vier de uma busca natural, utiliza o NLP para extrair as informações necessárias.
+        Se a requisição vier de uma busca parametrizada, usa as informações passadas como parâmetro.
+        
+        Em seguida, busca a entidade no banco de dados e, se não encontrar, tenta buscar na API do SWAPI.
+        Se encontrar a entidade, a retorna com a resposta formatada.
+        Caso contrário, retorna um erro ao front.
+        
+        Se o usuário estiver autenticado, salva a busca no banco de dados.
+        
+        Parameters
+        ----------
+        request : flask.request
+            Requisição HTTP.
+        user_data : dict
+            Dados do usuário autenticado, se houver.  
+             
+
+    
+        Returns
+        -------
+        dict
+            Dicionário com a resposta formatada.
+        
+        int
+            Código de status HTTP.
+
+        Examples
+        ------- 
+            request.args = {
+                q: "Qual a altura do Yoda?"
+            }
+
+            handle_insight(request)
+
+        --------
+
+        request.args = {
+            name: "Darth Vader",
+            type: "people",
+            filter: "height"
+        }
+        
+        handle_insight(request)
+
+
+        '''
+        
         params = request.args
         query_natural = params.get("q")
         
