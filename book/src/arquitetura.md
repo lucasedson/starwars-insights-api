@@ -69,3 +69,4 @@ A escolha dessa estrutura foi pautada em três pilares fundamentais:
 1.  **Escalabilidade Serverless:** A arquitetura baseada em **Cloud Functions** garante que a API suporte picos de tráfego sem a necessidade de gerenciamento de infraestrutura. Em conjunto com o API Gateway, ela oferece escalabilidade e flexibilidade para atender aos requisitos de escala da API.
 2.  **Resiliência com Cache-Aside:** O uso do **Firestore** como camada de persistência e cache garante que a aplicação continue funcional e rápida mesmo em momentos de instabilidade na API de origem (SWAPI).
 3.  **Autenticação e Autorização:** O uso de **Google Auth** garantem a autenticação e autorização de usuários, permitindo o acesso aos recursos da API.
+4.  **Camada de inteligência**: A camada de inteligência, com o NLTK, permite a interação com o usuário e a busca de dados de forma intuitiva e simplificada.

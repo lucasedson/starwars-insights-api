@@ -2,9 +2,6 @@
 
 O Playground é um ambiente de exploração projetado para que desenvolvedores possam experimentar os recursos da **Star Wars Insights API** em tempo real. Aqui você pode testar consultas estruturadas e o motor de Processamento de Linguagem Natural (NLP).
 
-> ### Nota sobre Autenticação
-> Para utilizar autenticar-se no Playground é necessário que seja acessado em uma janela independente. Isso garante que o fluxo de autenticação via **Google OAuth2** ocorra com segurança e que o `id_token` seja capturado corretamente pelo seu navegador.
-
 ---
 
 ## Histórico de Consultas (Auditlog)
@@ -19,11 +16,9 @@ Ao realizar o login, a API ativa a persistência de atividades no **Google Cloud
 
 ---
 
-## Como acessar
-
-Você pode visualizar o Playground abaixo, mas para uma experiência completa com autenticação com conta Google e visualização do seu **Histórico de Buscas**, recomendamos o acesso externo:
-
-* <a href="./html_extras/playground.html" target="_blank">Abrir o Playground em uma nova aba</a>
+> ### Nota sobre Autenticação
+> Para utilizar autenticar-se no Playground é necessário que seja acessado em uma janela independente. Isso garante que o fluxo de autenticação via **Google OAuth2** ocorra com segurança e que o `id_token` seja capturado corretamente pelo seu navegador.
+> <a href="./html_extras/playground.html" target="_blank">Abrir o Playground em uma nova aba</a>
 
 
 ---
