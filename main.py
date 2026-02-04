@@ -14,8 +14,8 @@ import base64
 base_path = Path(__file__).resolve().parent
 load_dotenv(dotenv_path=base_path / ".env")
 
-
 db_manager = FirestoreManager(os.getenv("GCP_PROJECT_ID"))
+frontend_url = os.getenv("FRONTEND_URL")
 swapi_client = SWAPIClient()
 controller = InsightController(db_manager, swapi_client)
 
@@ -23,14 +23,13 @@ controller = InsightController(db_manager, swapi_client)
 def star_wars_insights(request):
     if request.method == "OPTIONS":
         headers = {
-            "Access-Control-Allow-Origin": "https://lucasedson.github.io",
+            "Access-Control-Allow-Origin": frontend_url,
             "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Authorization",
             "Access-Control-Max-Age": "3600"
         }
         return ("", 204, headers)
 
-    response_headers = {"Access-Control-Allow-Origin": "https://lucasedson.github.io"}
 
     auth_header = request.headers.get("Authorization")
     user_data = None

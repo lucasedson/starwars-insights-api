@@ -4,12 +4,14 @@ from flask import redirect
 from concurrent.futures import ThreadPoolExecutor
 from app.views.responses import format_insight_response
 from app.controllers.nlp_controller import NLPController
-from app.utils.auth import get_google_auth_url, exchange_code_for_token
+from app.utils.auth import get_google_auth_url
 import requests
 import os
-import base64
-import json
 
+client_id = os.getenv("GOOGLE_CLIENT_ID")
+client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
+api_gateway_url = os.getenv("API_GATEWAY_URL")
+frontend_url = os.getenv("FRONTEND_URL")
 class InsightController:
     def __init__(self, db_manager, swapi_client):
         self.db = db_manager
@@ -31,14 +33,12 @@ class InsightController:
             return {"error": "No code provided"}, 400
 
         try:
-            # A redirect_uri AQUI deve ser a do BACKEND (onde o Google te enviou)
-            # E deve ser EXATAMENTE igual à cadastrada no Google Cloud Console
             token_endpoint = "https://oauth2.googleapis.com/token"
             data = {
                 "code": code,
-                "client_id": os.getenv("GOOGLE_CLIENT_ID"),
-                "client_secret": os.getenv("GOOGLE_CLIENT_SECRET"),
-                "redirect_uri": "https://sw-gateway-aaqxefvm.ue.gateway.dev/callback", # <--- O PONTO CRÍTICO
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "redirect_uri": f"{api_gateway_url}/callback",
                 "grant_type": "authorization_code",
             }
 
@@ -50,9 +50,7 @@ class InsightController:
 
             id_token = token_data.get("id_token")
 
-            # --- Agora sim o Redirecionamento ---
-            # Se chegamos aqui, o token é válido. Agora mandamos para o frontend.
-            frontend_url = "https://lucasedson.github.io/starwars-insights-api/html_extras/playground.html"
+
             return redirect(f"{frontend_url}#id_token={id_token}")
 
         except Exception as e:

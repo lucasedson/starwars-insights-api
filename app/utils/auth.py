@@ -6,15 +6,16 @@ from urllib.parse import urlencode
 
 def verify_google_token(token):
     client_id = os.getenv("GOOGLE_CLIENT_ID")
-    # A URL que apareceu no erro do seu log
-    function_url = "https://us-east1-pod-ps-backend-python.cloudfunctions.net/star_wars_insights/me"
+    api_url = os.getenv("FUNCTION_URL")
+
+    function_url = f"{api_url}/star_wars_insights/me"
     
     try:
-        # Passamos uma lista de audiências permitidas
+
         idinfo = id_token.verify_oauth2_token(
             token, 
             google_requests.Request(), 
-            audience=[client_id, function_url], # ACEITA AMBOS
+            audience=[client_id, function_url],
             clock_skew_in_seconds=10
         )
         return idinfo
@@ -41,13 +42,14 @@ def get_google_auth_url():
 
 def exchange_code_for_token(code):
     token_url = "https://oauth2.googleapis.com/token"
+    redirect_uri = os.getenv("REDIRECT_URI")
     payload = {
         "client_id": os.getenv("GOOGLE_CLIENT_ID"),
         "client_secret": os.getenv("GOOGLE_CLIENT_SECRET"),
         "code": code,
         "grant_type": "authorization_code",
 
-        "redirect_uri": "http://127.0.0.1:8080/callback" 
+        "redirect_uri": redirect_uri
     }
     
     response = requests.post(token_url, data=payload)
