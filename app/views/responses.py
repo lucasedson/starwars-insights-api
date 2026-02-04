@@ -20,6 +20,25 @@ def format_insight_response(
     source: str = "SWAPI Ecosystem",
     suggestion: Optional[str] = None 
 ) -> tuple:
+    """
+    Formata uma resposta para uma requisiçãoo de insight.
+
+    Parameters
+    ----------
+    data : Dict
+        Dados da entidade.
+    filter_fields : Optional[list[str]]
+        Se informado, retorna apenas os campos especificados.
+    source : str
+        Origem da informação (Firestore/Live).
+    suggestion : Optional[str]
+        Sugestão de busca para o caso de não encontrar a entidade.
+
+    Returns
+    -------
+    tuple
+        Tupla com a resposta formatada em JSON, o c digo de status HTTP e os headers da resposta.
+    """
     if not data or "error" in data:
         return _format_error_response(data, 404)
 
@@ -49,6 +68,22 @@ def format_insight_response(
     return (response_model.model_dump_json(by_alias=True), 200, headers)
 
 def _format_error_response(error_data: Dict, status_code: int = 400) -> tuple:
+    
+    """
+    Formata uma resposta para uma requisição de insight com um erro.
+
+    Parameters
+    ----------
+    error_data : Dict
+        Dados do erro.
+    status_code : int
+        C digo de status HTTP.
+
+    Returns
+    -------
+    tuple
+        Tupla com a resposta formatada em JSON, o código de status HTTP e os headers da resposta.
+    """
     headers = {"Content-Type": "application/json; charset=utf-8", "Access-Control-Allow-Origin": "*"}
     body = json.dumps({
         "status": "error",
