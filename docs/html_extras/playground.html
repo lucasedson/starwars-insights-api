@@ -294,23 +294,27 @@
                 async checkSession() {
                     if (!this.token) return;
                     try {
-                        const res = await fetch(`${baseUrl}me`, { 
+                        console.log("Iniciando checkSession...");
+                        const res = await fetch(`${baseUrl}me`, {
                             headers: this.getHeaders(),
-                            mode: 'cors' 
+                            mode: 'cors'
                         });
-                        
-                        const data = await res.json();
-                        console.log("checkSession - Resposta:", data);
 
-                        // Se o is_auth for false, nós limpamos tudo imediatamente
+                        const data = await res.json();
+
+                        // Isso vai te mostrar exatamente o que o Python retornou
+                        console.log("checkSession - Resposta do Servidor:", data);
+
                         if (res.ok && data && data.is_auth !== false && !data.error) {
                             this.user = data;
+                            console.log("Sessão validada com sucesso!");
                         } else {
-                            console.warn("Sessão inválida reportada pelo servidor.");
-                            this.logout(); // Isso vai esconder o avatar e mostrar o botão de login
+                            // Se cair aqui, o servidor respondeu mas não autorizou
+                            console.warn("Sessão negada pelo backend. Motivo provável: Token inválido ou expirado.");
+                            this.logout();
                         }
                     } catch (e) {
-                        console.error("Falha ao validar sessão:", e);
+                        console.error("Erro técnico na comunicação com /me:", e);
                         this.logout();
                     }
                 },
