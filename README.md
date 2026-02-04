@@ -2,6 +2,12 @@
 
 Este é um projeto de API para o processo seletivo da empresa [Power of Data](https://www.powerofdata.ai/) para a vaga de Desenvolvedor Backend Junior.
 
+## Sobre o projeto:
+
+A Star Wars Insights API é uma solução de engenharia de dados inteligente, escalável e de alto desempenho, projetada para transformar a exploração do universo Star Wars.
+
+Diferente de um simples proxy ou espelhamento da SWAPI, este projeto atua como uma camada de inteligência. Ela processa, higieniza e correlaciona dados brutos para entregar insights prontos para o consumo, eliminando a necessidade de múltiplas requisições e tratamentos manuais no lado do cliente.
+
 Veja a [DOCUMENTAÇÃO COMPLETA](https://lucasedson.github.io/starwars-insights-api) para saber mais.
 
 
