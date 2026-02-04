@@ -8,9 +8,31 @@ from types import SimpleNamespace
 
 class SWAPIClient:
     def __init__(self):
+        """
+        Inicializa o cliente da API do SWAPI.
+
+        Attributes
+        ----------
+        base_url : str
+            URL base da API do SWAPI.
+        """
         self.base_url = "https://swapi.dev/api"
 
     def _get_request(self, url: str) -> Optional[dict]:
+        
+        """
+        Faz uma requisição GET para a URL especificada e retorna o resultado em formato JSON.
+
+        Parameters
+        ----------
+        url : str
+            A URL a ser buscada.
+
+        Returns
+        -------
+        Optional[dict]
+            O resultado da requisição em formato JSON ou None se a requisição falhar.
+        """
         try:
             response = requests.get(url, timeout=10.0)
             response.raise_for_status()
@@ -45,6 +67,22 @@ class SWAPIClient:
         return SpeciesSchema(**data["results"][0]) if data and data.get("count", 0) > 0 else None
 
     def fetch_hydrated(self, name: str, entity_type: str):
+        
+        """
+        Busca uma entidade na API do SWAPI com base em nome e tipo.
+
+        Parameters
+        ----------
+        name : str
+            Nome da entidade a ser buscada.
+        entity_type : str
+            Tipo da entidade a ser buscada.
+
+        Returns
+        -------
+        Optional[dict]
+            O resultado da busca em formato JSON ou None se a busca falhar.
+        """
         method_map = {
             "people": "get_person",
             "planets": "get_planet",
