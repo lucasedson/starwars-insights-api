@@ -280,3 +280,21 @@ def test_get_species_single_filter():
     
     assert data["status"] == "success"
     assert data["insight_value"]["classification"] == "artificial"
+
+def test_natural_language_query():
+    """
+    Testa a busca por uma entidade com uma consulta natural.
+    """
+    params = {"q": "Qual a altura do Yoda?"}
+    response = requests.get(BASE_URL, params=params)
+    
+    assert response.status_code == 200
+
+def test_invalid_query():
+    """
+    Testa uma consulta inválida.
+    """
+    params = {"q": "Qulquer coisa"}
+    response = requests.get(BASE_URL, params=params)
+    
+    assert response.status_code == 404

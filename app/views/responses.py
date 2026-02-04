@@ -21,7 +21,7 @@ def format_insight_response(
     suggestion: Optional[str] = None 
 ) -> tuple:
     if not data or "error" in data:
-        return _format_error_response(data)
+        return _format_error_response(data, 404)
 
     if filter_fields:
         insight_value = {field: data.get(field) for field in filter_fields}
@@ -55,5 +55,6 @@ def _format_error_response(error_data: Dict, status_code: int = 400) -> tuple:
         "message": error_data.get("error", "Erro desconhecido"),
         "details": error_data.get("details", "")
     }, ensure_ascii=False)
+    
     
     return (body, status_code, headers)
