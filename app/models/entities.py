@@ -2,8 +2,24 @@ from pydantic import BaseModel, BeforeValidator, Field
 from typing import List, Optional, Any, Annotated
 from datetime import date
 
-def parse_swapi_numeric(v: Any) -> Optional[float]:
-    """Converte strings da SWAPI ('unknown', '1,000') em float ou None."""
+def parse_swapi_numeric(v: Any) -> Optional[float]:    
+    """Converte strings da SWAPI ('unknown', '1,000') em float ou None.
+
+    Se o valor for None ou uma das strings 'unknown', 'n/a', 'none', 'indefinite' ou 'unknown', retorna None.
+    Se o valor for uma string, remove as vírgulas e tente converter para float.
+    Se a convers o falhar, retorna None.
+
+    Parameters
+    ----------
+    v : Any
+        O valor a ser convertido.
+
+    Returns
+    -------
+    Optional[float]
+        O valor convertido ou None se a conversão falhar.
+    """
+
     if v in [None, "unknown", "n/a", "none", "indefinite", "unknown"]:
         return None
     try:
