@@ -2,7 +2,7 @@
 
 Este é um projeto de API para o processo seletivo da empresa [Power of Data](https://www.powerofdata.ai/) para a vaga de Desenvolvedor Backend Junior.
 
-Veja a [documentação](https://lucasedson.github.io/starwars-insights-api) para saber mais.
+Veja a [DOCUMENTAÇÃO COMPLETA](https://lucasedson.github.io/starwars-insights-api) para saber mais.
 
 
 
