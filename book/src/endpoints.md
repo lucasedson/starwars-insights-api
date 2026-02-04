@@ -2,6 +2,8 @@
 
 A **Star Wars Insights API** oferece uma interface híbrida e resiliente, permitindo consultas via parâmetros estruturados ou processamento de linguagem natural (NLP).
 
+URL no API Gateway: [https://sw-gateway-aaqxefvm.ue.gateway.dev/](https://sw-gateway-aaqxefvm.ue.gateway.dev/)
+
 ---
 
 ## 1. Motor de Busca e Insights (Principal)
@@ -24,7 +26,9 @@ Este é o orquestrador inteligente que integra o motor de NLP, correção fonét
 ### Exemplos de Resposta
 
 #### A. Linguagem Natural com Correção (Fuzzy Match)
-**Request:** `GET /?q=Quais filmes o Luke Skiwalke atuou?`
+**Request:** `GET`
+<a href="https://sw-gateway-aaqxefvm.ue.gateway.dev/?q=Quais filmes o Luke Skiwalke atuou?" target="_blank">?q="Quais filmes o Luke Skiwalke atuou?"</a>
+
 *(Note o erro proposital no nome)*
 
 ```json
@@ -41,7 +45,8 @@ Este é o orquestrador inteligente que integra o motor de NLP, correção fonét
 ```
 
 #### B. Parâmetros Estruturados
-**Request:** `GET /?name=Yoda&type=people&filter=films`
+**Request:** GET 
+<a  href="https://sw-gateway-aaqxefvm.ue.gateway.dev/?name=Yoda&type=people&filter=films" target="_blank">?name=Yoda&type=people&filter=films</a>
 
 ```JSON
 

@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-e8e4e955.js";
+            window.path_to_searchindex_js = "searchindex-55dd08c3.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-5245ddeb.js"></script>
@@ -176,6 +176,7 @@
                     <main>
                         <h1 id="-documentação-da-api-endpoints"><a class="header" href="#-documentação-da-api-endpoints">🛰️ Documentação da API (Endpoints)</a></h1>
 <p>A <strong>Star Wars Insights API</strong> oferece uma interface híbrida e resiliente, permitindo consultas via parâmetros estruturados ou processamento de linguagem natural (NLP).</p>
+<p>URL no API Gateway: <a href="https://sw-gateway-aaqxefvm.ue.gateway.dev/">https://sw-gateway-aaqxefvm.ue.gateway.dev/</a></p>
 <hr>
 <h2 id="1-motor-de-busca-e-insights-principal"><a class="header" href="#1-motor-de-busca-e-insights-principal">1. Motor de Busca e Insights (Principal)</a></h2>
 <p>Este é o orquestrador inteligente que integra o motor de NLP, correção fonética (Fuzzy Match) e a hidratação de dados em tempo real.</p>
@@ -203,8 +204,9 @@
 </blockquote>
 <h3 id="exemplos-de-resposta"><a class="header" href="#exemplos-de-resposta">Exemplos de Resposta</a></h3>
 <h4 id="a-linguagem-natural-com-correção-fuzzy-match"><a class="header" href="#a-linguagem-natural-com-correção-fuzzy-match">A. Linguagem Natural com Correção (Fuzzy Match)</a></h4>
-<p><strong>Request:</strong> <code>GET /?q=Quais filmes o Luke Skiwalke atuou?</code>
-<em>(Note o erro proposital no nome)</em></p>
+<p><strong>Request:</strong> <code>GET</code>
+<a href="https://sw-gateway-aaqxefvm.ue.gateway.dev/?q=Quais filmes o Luke Skiwalke atuou?" target="_blank">?q=“Quais filmes o Luke Skiwalke atuou?”</a></p>
+<p><em>(Note o erro proposital no nome)</em></p>
 <pre><code class="language-json">{
   "status": "success",
   "entity": "Luke Skywalker",
@@ -217,7 +219,8 @@
 }
 </code></pre>
 <h4 id="b-parâmetros-estruturados"><a class="header" href="#b-parâmetros-estruturados">B. Parâmetros Estruturados</a></h4>
-<p><strong>Request:</strong> <code>GET /?name=Yoda&amp;type=people&amp;filter=films</code></p>
+<p><strong>Request:</strong> GET
+<a href="https://sw-gateway-aaqxefvm.ue.gateway.dev/?name=Yoda&amp;type=people&amp;filter=films" target="_blank">?name=Yoda&amp;type=people&amp;filter=films</a></p>
 <pre><code class="language-JSON">
 {
   "status": "success",
