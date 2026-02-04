@@ -90,25 +90,27 @@ paths:
               type: string
 
   /history:
-    get:
-      summary: Log de consultas do usuário
-      operationId: getHistory
-      responses:
-        200:
-          description: Sucesso
-    options:
-      summary: CORS History
-      operationId: corsHistory
-      responses:
-        200:
-          description: OK
-          headers:
-            Access-Control-Allow-Origin:
-              type: string
-            Access-Control-Allow-Methods:
-              type: string
-            Access-Control-Allow-Headers:
-              type: string
+      get:
+        operationId: getHistory
+        x-google-backend:
+          address: "https://us-east1-pod-ps-backend-python.cloudfunctions.net/star_wars_insights/history"
+        responses:
+          200: {description: Sucesso}
+      options:
+        operationId: corsHistory
+        x-google-backend:
+          address: "https://us-east1-pod-ps-backend-python.cloudfunctions.net/star_wars_insights/history"
+        responses:
+          200:
+            description: OK
+            headers:
+              Access-Control-Allow-Origin:
+                type: string
+              Access-Control-Allow-Methods:
+                type: string
+              Access-Control-Allow-Headers:
+                type: string
+
 
   /metadata:
     get:

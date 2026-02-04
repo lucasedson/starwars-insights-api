@@ -41,14 +41,17 @@
                     </template>
                     
                     <template x-if="user">
-                        <div class="flex items-center gap-4 animate-in fade-in" x-cloak>
+                        <div class="flex items-center gap-4 animate-in fade-in">
                             <div class="text-right">
                                 <p class="text-[10px] font-black uppercase text-white leading-none" 
-                                   x-text="user.given_name || user.name || (user.email ? user.email.split('@')[0] : 'Usuário')"></p>
+                                   x-text="user.name || user.given_name || (user.email ? user.email.split('@')[0] : 'Usuário')"></p>
                                 <p class="mono text-[9px] text-slate-500" x-text="user.email || 'Autenticado'"></p>
                             </div>
-                            <img :src="user.picture || 'https://ui-avatars.com/api/?background=0ea5e9&color=fff&name=' + (user.email || 'SW')" 
-                                 class="w-9 h-9 rounded border border-white/10 object-cover shadow-lg">
+                            <div class="relative">
+                                <img :src="user.picture || user.avatar_url || 'https://ui-avatars.com/api/?background=0ea5e9&color=fff&name=' + (user.email || 'SW')" 
+                                     class="w-9 h-9 rounded border border-white/10 object-cover shadow-lg">
+                                <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-ayuBg rounded-full"></div>
+                            </div>
                             <button @click="logout()" class="text-slate-500 hover:text-red-500 p-1 transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-width="2"/></svg>
                             </button>
@@ -94,17 +97,30 @@
                         </datalist>
                     </div>
                 </div>
-                <button @click="fetchData('structured')" :disabled="loading" class="w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded font-black uppercase text-xs tracking-widest text-white">Executar Consulta</button>
+
+                <div class="space-y-4">
+                    <label class="mono text-[10px] uppercase text-slate-500 font-bold tracking-widest">Filtros de Retorno (Schema)</label>
+                    <div class="flex flex-wrap gap-2 bg-black/20 p-4 rounded border border-white/5">
+                        <template x-for="field in schemaMap[struct.type]" :key="field">
+                            <button type="button" @click="toggleFilter(field)"
+                                :class="activeFilters.includes(field) ? 'bg-sky-600 text-white border-sky-400 shadow-md shadow-sky-500/20' : 'bg-black/30 text-slate-500 border-white/5'"
+                                class="px-3 py-1.5 rounded text-[10px] border font-bold uppercase transition-all" x-text="field">
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <button @click="fetchData('structured')" :disabled="loading" class="w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded font-black uppercase text-xs tracking-widest text-white transition-all">Executar Consulta</button>
             </div>
 
             <div x-show="mode === 'history'" x-transition class="space-y-6">
                 <div class="flex justify-between items-center border-b border-white/5 pb-4">
-                    <h3 class="mono text-xs font-black uppercase text-sky-400 tracking-widest">Registros</h3>
+                    <h3 class="mono text-xs font-black uppercase text-sky-400 tracking-widest">Logs de Atividade</h3>
                     <button @click="fetchHistory()" class="mono text-[9px] text-slate-500 hover:text-white uppercase font-bold">Sincronizar</button>
                 </div>
                 <div class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar pr-2">
                     <template x-if="history.length === 0">
-                        <div class="py-10 text-center text-slate-600 text-xs uppercase font-bold italic">Nenhum registro encontrado ou acesso negado.</div>
+                        <div class="py-10 text-center text-slate-600 text-xs uppercase font-bold italic">Nenhum registro.</div>
                     </template>
                     <template x-for="item in history">
                         <div class="bg-black/20 p-4 rounded border border-white/5 flex justify-between items-center">
@@ -126,7 +142,18 @@
                     <template x-for="(value, key) in response?.insight_value">
                         <div class="border-b border-white/5 pb-5 last:border-0">
                             <label class="mono text-[9px] uppercase text-sky-500 font-bold block mb-2" x-text="key.replace('_', ' ')"></label>
-                            <span class="text-white text-base font-semibold" x-text="value"></span>
+                            <div class="pl-1">
+                                <template x-if="Array.isArray(value)">
+                                    <div class="flex flex-wrap gap-2">
+                                        <template x-for="item in value">
+                                            <span class="bg-black/40 text-slate-300 px-3 py-1 rounded text-[10px] border border-white/5" x-text="item"></span>
+                                        </template>
+                                    </div>
+                                </template>
+                                <template x-if="!Array.isArray(value)">
+                                    <span class="text-white text-base font-semibold" x-text="value"></span>
+                                </template>
+                            </div>
                         </div>
                     </template>
                 </div>
@@ -154,12 +181,12 @@
                 loading: false,
 
                 schemaMap: {
-                    people: ['birth_year', 'eye_color', 'gender', 'hair_color', 'skin_color', 'height', 'mass', 'homeworld'],
-                    films: ['episode_id', 'director', 'producer', 'release_date'],
-                    starships: ['model', 'manufacturer', 'cost_in_credits', 'length'],
-                    vehicles: ['model', 'manufacturer', 'cost_in_credits', 'length'],
-                    species: ['classification', 'designation', 'average_height'],
-                    planets: ['rotation_period', 'orbital_period', 'diameter']
+                    people: ['birth_year', 'eye_color', 'gender', 'hair_color', 'skin_color', 'height', 'mass', 'homeworld', 'films', 'species', 'starships', 'vehicles'],
+                    films: ['episode_id', 'opening_crawl', 'director', 'producer', 'release_date', 'characters', 'planets', 'starships', 'vehicles', 'species'],
+                    starships: ['model', 'manufacturer', 'cost_in_credits', 'length', 'max_atmosphering_speed', 'crew', 'passengers', 'cargo_capacity', 'consumables', 'hyperdrive_rating', 'MGLT', 'starship_class', 'pilots', 'films'],
+                    vehicles: ['model', 'manufacturer', 'cost_in_credits', 'length', 'max_atmosphering_speed', 'crew', 'passengers', 'cargo_capacity', 'consumables', 'pilots', 'films'],
+                    species: ['classification', 'designation', 'average_height', 'average_lifespan', 'hair_colors', 'eye_colors', 'skin_colors', 'language', 'homeworld', 'people', 'films'],
+                    planets: ['rotation_period', 'orbital_period', 'diameter', 'climate', 'gravity', 'terrain', 'surface_water', 'population', 'residents', 'films']
                 },
 
                 async init() {
@@ -172,17 +199,11 @@
                             window.history.replaceState(null, null, window.location.pathname);
                         }
                     }
-
-                    if (this.token) {
-                        await this.checkSession();
-                    }
-
+                    if (this.token) await this.checkSession();
                     try {
                         const res = await fetch(`${baseUrl}metadata`);
                         if(res.ok) this.metadata = await res.json();
                     } catch (e) {}
-
-                    this.$watch('struct.type', () => { this.activeFilters = []; });
                 },
 
                 getHeaders() { 
@@ -192,21 +213,17 @@
                 },
 
                 async checkSession() {
-                    if(!this.token) return;
                     try {
-                        const res = await fetch(`${baseUrl}me`, { 
-                            headers: this.getHeaders(),
-                            mode: 'cors' 
-                        });
+                        const res = await fetch(`${baseUrl}me`, { headers: this.getHeaders(), mode: 'cors' });
                         if (res.ok) {
-                            this.user = await res.json();
+                            const data = await res.json();
+                            this.user = data;
                         } else { this.logout(); }
                     } catch (e) { this.logout(); }
                 },
 
                 setMode(m) {
                     this.mode = m;
-                    this.response = null;
                     if (m === 'history') this.fetchHistory();
                 },
 
@@ -214,10 +231,7 @@
 
                 logout() {
                     localStorage.removeItem('id_token');
-                    this.user = null;
-                    this.token = null;
-                    this.history = [];
-                    this.mode = 'natural';
+                    this.user = null; this.token = null; this.history = []; this.mode = 'natural';
                 },
 
                 getItemLabel(item) {
@@ -233,15 +247,10 @@
                 async fetchHistory() {
                     if (!this.token) return;
                     try {
-                        const res = await fetch(`${baseUrl}history`, { 
-                            headers: this.getHeaders(),
-                            mode: 'cors'
-                        });
+                        const res = await fetch(`${baseUrl}history`, { headers: this.getHeaders(), mode: 'cors' });
                         if (res.ok) {
                             const data = await res.json();
                             this.history = data.queries ? [...data.queries].reverse() : [];
-                        } else if (res.status === 401) {
-                            console.error("Token expirado ao buscar histórico.");
                         }
                     } catch (e) {}
                 },
@@ -272,17 +281,11 @@
                     }
 
                     try {
-                        const res = await fetch(url, { 
-                            headers: this.getHeaders(),
-                            mode: 'cors'
-                        });
+                        const res = await fetch(url, { headers: this.getHeaders(), mode: 'cors' });
                         if (res.status === 401) { this.logout(); return; }
                         this.response = await res.json();
-                    } catch (e) { 
-                        console.error("Fetch error:", e);
-                    } finally { 
-                        this.loading = false; 
-                    }
+                    } catch (e) { console.error("Fetch error:", e); } 
+                    finally { this.loading = false; }
                 }
             }
         }
