@@ -83,7 +83,7 @@ def star_wars_insights(request):
         return wrap_cors(controller.handle_callback(request))
     
     if path == "me":
-        return wrap_cors(controller.get_user_status(user_data))
+        return wrap_cors(controller.get_user(user_data))
     
     if path == "metadata":
         return wrap_cors(controller.get_known_entities())

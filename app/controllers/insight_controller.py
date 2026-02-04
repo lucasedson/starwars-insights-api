@@ -55,7 +55,7 @@ class InsightController:
 
         except Exception as e:
             return {"error": str(e)}, 500
-    def get_user_status(self, user_data):
+    def get_user(self, user_data):
         # Se chegamos aqui e user_data existe, mas o e-mail é da conta de serviço,
         # significa que estamos em produção e o token original foi trocado.
         
