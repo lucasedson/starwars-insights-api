@@ -5,6 +5,21 @@ from google.auth.transport import requests as google_requests
 from urllib.parse import urlencode
 
 def verify_google_token(token):
+    """
+    Verifica se o token de acesso fornecido é válido, com base em Google OAuth2.
+    
+    Parameters
+    ----------
+    token : str
+        Token de acesso fornecido pelo usuário.
+    
+    Returns
+    -------
+    dict
+        Dicionário com informações do usuário, caso o token seja válido.
+    None
+        Caso o token seja inválido.
+    """
     client_id = os.getenv("GOOGLE_CLIENT_ID")
     api_url = os.getenv("FUNCTION_URL")
 
@@ -24,6 +39,17 @@ def verify_google_token(token):
         return None
 
 def get_google_auth_url():
+    """
+    Retorna a URL para autenticação com a conta Google.
+
+    A URL é montada com base nos parâmetros de ambiente, incluindo o client ID e o redirect URI.
+    Os parâmetros de autenticação incluem o tipo de resposta (code), o escopo (openid, email e profile), o tipo de acesso (offline) e a opção de prompt (select_account).
+
+    Returns
+    -------
+    str
+        A URL para autenticação com a conta Google.
+    """
     client_id = os.getenv("GOOGLE_CLIENT_ID")
     redirect_uri = os.getenv("REDIRECT_URI")
     
@@ -41,6 +67,19 @@ def get_google_auth_url():
 
 
 def exchange_code_for_token(code):
+    """
+    Troca o código de autenticação pelo token de acesso.
+
+    Parameters
+    ----------
+    code : str
+        Código de autenticação retornado pelo Google.
+
+    Returns
+    -------
+    dict or None
+        Dicionário com o token de acesso ou None se houver erro.
+    """
     token_url = "https://oauth2.googleapis.com/token"
     redirect_uri = os.getenv("REDIRECT_URI")
     payload = {
