@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-eacedabe.js";
+            window.path_to_searchindex_js = "searchindex-318760f2.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-5245ddeb.js"></script>
@@ -326,6 +326,70 @@ Venha fazer parte da equipe inovadora da PowerOfData e participe na criação de
 <li><strong>Relacionamentos:</strong> As setas indicam o fluxo de dados entre os nós.</li>
 </ul>
 <hr>
+<h2 id="visão-geral-1"><a class="header" href="#visão-geral-1">Visão Geral</a></h2>
+<h3>Atores e Sistemas Externos:</h3>
+
+<img src="images_extras/nivel-raiz.png" style="width: 100%;border: 2px solid #f0f0f0; border-radius: 8px;" />
+<ul>
+<li>
+<p><strong>Usuário / Client:</strong> O ponto de partida. Pode ser o seu Playground em GitHub Pages ou qualquer cliente enviando tokens via header.</p>
+</li>
+<li>
+<p><strong>Google Auth Service:</strong> Sistema externo que emite e valida a identidade do usuário via OAuth2.</p>
+</li>
+<li>
+<p><strong>SWAPI External:</strong> É a API pública de Star Wars que fornece os dados crus.</p>
+</li>
+</ul>
+<h2>Infraestrutura (GCP Context)</h2>
+
+<img src="images_extras/nivel-system.png" style="width: 100%;border: 2px solid #f0f0f0; border-radius: 8px;" />
+<ul>
+<li>
+<p><strong>Star Wars Insights Platform:</strong> O limite do seu sistema, englobando tudo que você controla no GCP.</p>
+</li>
+<li>
+<p><strong>API Gateway:</strong> A casca de proteção e roteamento. Gerencia CORS e autenticação.</p>
+</li>
+<li>
+<p><strong>Aplicação / Cloud Function:</strong> O ambiente serverless onde seu código Python escala sob demanda.</p>
+</li>
+<li>
+<p><strong>GCP Firestore:</strong> Banco de dados NoSQL usado para persistir o histórico de buscas dos usuários e o cache de entidades hidratadas.</p>
+</li>
+</ul>
+<h2>Componentes Internos (Software Design)</h2>
+
+<img src="images_extras/nivel-aplicacao.png" style="width: 100%;border: 2px solid #f0f0f0; border-radius: 8px;" />
+<ul>
+<li>
+<p><strong>Main.py</strong>:O entrypoint da função. Faz o roteamento interno (handshake) das URLs para os controladores.</p>
+</li>
+<li>
+<p><strong>InsightController:</strong> O “cérebro”. Coordena a lógica entre a entrada do usuário, o processamento de texto e a busca de dados.</p>
+</li>
+<li>
+<p><strong>AuthController:</strong> Gerencia especificamente o fluxo de login e verificação de perfil.</p>
+</li>
+<li>
+<p><strong>Auth Utils:</strong> Ferramentas de baixo nível para troca de tokens e geração de URLs de autenticação.</p>
+</li>
+<li>
+<p><strong>DatabaseModel</strong>: Abstração que facilita operações de CRUD no Firestore.</p>
+</li>
+<li>
+<p><strong>SWAPIClient:</strong> Cliente HTTP otimizado para se comunicar com a API externa.</p>
+</li>
+<li>
+<p><strong>EntitiesModel:</strong> Definições de classes Pydantic (Planetas, Naves, etc.) para garantir integridade dos dados.</p>
+</li>
+<li>
+<p><strong>NLPServices:</strong> Camada de inteligência que traduz “Quem é o Luke?” em filtros que o sistema entende.</p>
+</li>
+<li>
+<p><strong>DataServices:</strong> Camada responsável pela “Hidratação” (transformar URLs da SWAPI em nomes legíveis) e manipulação de dados em paralelo.</p>
+</li>
+</ul>
 <h2 id="decisões-de-arquitetura"><a class="header" href="#decisões-de-arquitetura">Decisões de Arquitetura</a></h2>
 <p>A escolha dessa estrutura foi pautada em três pilares fundamentais:</p>
 <ol>
@@ -467,12 +531,9 @@ Venha fazer parte da equipe inovadora da PowerOfData e participe na criação de
 <p>Optei por uma arquitetura <em>serverless</em> integrada ao <strong>Google Cloud Firestore</strong> para garantir alta disponibilidade. O sistema de cache e o uso de processamento paralelo via <strong>Multi-threading</strong> foram projetados para sustentar acessos em escala, mantendo a baixa latência exigida por soluções corporativas.</p>
 <h3 id="processamento-de-linguagem-natural-nltk"><a class="header" href="#processamento-de-linguagem-natural-nltk">Processamento de Linguagem Natural (NLTK)</a></h3>
 <p>A utilização da biblioteca <strong>NLTK</strong> permitiu decompor a linguagem humana em componentes processáveis. Através de <em>tokenização</em> e filtragem de ruídos (<em>stopwords</em>), a API isola intenções e entidades com precisão, aproximando a experiência de uso de ferramentas modernas de busca.</p>
-<h3 id="inteligência-acessível-nlp--ux"><a class="header" href="#inteligência-acessível-nlp--ux">Inteligência Acessível (NLP &amp; UX)</a></h3>
-<p>A combinação do NLTK com algoritmos de <strong>Fuzzy Match</strong> reflete a busca por interfaces amigáveis. O objetivo é remover barreiras técnicas, permitindo que a descoberta de dados seja intuitiva e resiliente a erros de digitação, independentemente do perfil do usuário.</p>
 <hr>
-<p>Repositorio: <a href="https://github.com/lucasedson/star-wars-insights-api">https://github.com/lucasedson/star-wars-insights-api</a></p>
-<p>Tempo de desenvolvimento:
-<a href="https://wakatime.com/@d8e2eed9-84de-4eac-abd2-69f82c10f1e1/projects/phmcbhslwe?start=2026-01-27&amp;end=2026-02-02"><img src="https://wakatime.com/badge/user/d8e2eed9-84de-4eac-abd2-69f82c10f1e1/project/a6563dfc-3433-491a-afcf-8f821876456d.svg" alt="wakatime"></a></p>
+<p>Repositório: <a href="https://github.com/lucasedson/starwars-insights-api">https://github.com/lucasedson/starwars-insights-api</a></p>
+<p>Email: lucasedson654.gmail.com</p>
 
                     </main>
 

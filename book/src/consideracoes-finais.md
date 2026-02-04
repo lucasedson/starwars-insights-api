@@ -18,14 +18,11 @@ Optei por uma arquitetura *serverless* integrada ao **Google Cloud Firestore** p
 ### Processamento de Linguagem Natural (NLTK)
 A utilização da biblioteca **NLTK** permitiu decompor a linguagem humana em componentes processáveis. Através de *tokenização* e filtragem de ruídos (*stopwords*), a API isola intenções e entidades com precisão, aproximando a experiência de uso de ferramentas modernas de busca.
 
-### Inteligência Acessível (NLP & UX)
-A combinação do NLTK com algoritmos de **Fuzzy Match** reflete a busca por interfaces amigáveis. O objetivo é remover barreiras técnicas, permitindo que a descoberta de dados seja intuitiva e resiliente a erros de digitação, independentemente do perfil do usuário.
 
 
 ---
 
-Repositorio: [https://github.com/lucasedson/star-wars-insights-api](https://github.com/lucasedson/star-wars-insights-api)
+Repositório: [https://github.com/lucasedson/starwars-insights-api](https://github.com/lucasedson/starwars-insights-api)
 
+Email: lucasedson654.gmail.com
 
-Tempo de desenvolvimento:
-<a href="https://wakatime.com/@d8e2eed9-84de-4eac-abd2-69f82c10f1e1/projects/phmcbhslwe?start=2026-01-27&end=2026-02-02"><img src="https://wakatime.com/badge/user/d8e2eed9-84de-4eac-abd2-69f82c10f1e1/project/a6563dfc-3433-491a-afcf-8f821876456d.svg" alt="wakatime"></a>

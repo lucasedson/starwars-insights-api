@@ -106,8 +106,8 @@
     "id": "swapi_ext",
     "type": "c4-software_system",
     "position": {
-      "x": 350,
-      "y": 600
+      "x": 333.9080459770114,
+      "y": 613.9463601532567
     },
     "data": {
       "id": "swapi_ext",
@@ -156,24 +156,10 @@
     },
     "data": {
       "id": "cf_backend",
-      "label": "Cloud Function (Python)",
+      "label": "Aplicação",
       "c4Type": "container",
       "description": "## Orquestrador serverless que executa a lógica de negócio em Python.",
-      "parentId": "sys_main"
-    }
-  },
-  {
-    "id": "nlp_engine",
-    "type": "c4-component",
-    "position": {
-      "x": 0,
-      "y": 600
-    },
-    "data": {
-      "id": "nlp_engine",
-      "label": "NLTK Engine",
-      "c4Type": "component",
-      "description": "Motor de processamento de linguagem natural e Fuzzy Matching.",
+      "technology": "Cloud Functions/ Python",
       "parentId": "sys_main"
     }
   },
@@ -181,8 +167,8 @@
     "id": "firestore_db",
     "type": "c4-container",
     "position": {
-      "x": 350,
-      "y": 600
+      "x": 173.1377212637608,
+      "y": 580.0155617247187
     },
     "data": {
       "id": "firestore_db",
@@ -191,6 +177,152 @@
       "description": "Persistência de logs de busca e cache de documentos.",
       "parentId": "sys_main"
     }
+  },
+  {
+    "id": "node-cpt0eihwq",
+    "type": "c4-component",
+    "position": {
+      "x": 350,
+      "y": 0
+    },
+    "data": {
+      "id": "node-cpt0eihwq",
+      "label": "Main.py",
+      "c4Type": "component",
+      "description": "Função principal do Cloud Function, responsável por lidar com requisições HTTP e rotear as funções pedidas pelo Api Gateway para os respectivos Controllers.",
+      "technology": "",
+      "parentId": "cf_backend"
+    }
+  },
+  {
+    "id": "node-x4x26svm8",
+    "type": "c4-component",
+    "position": {
+      "x": 525,
+      "y": 300
+    },
+    "data": {
+      "id": "node-x4x26svm8",
+      "label": "InsightController",
+      "c4Type": "component",
+      "description": "# Controlador Principal\n\n        Parameters\n        ----------\n        db_manager : app.models.database.FirestoreManager\n            Gerenciador de banco de dados do Firebase.\n        swapi_client : app.models.swapi.SWAPIClient\n            Cliente da API do SWAPI.\n\n        Attributes\n        -------\n        db : app.models.database.FirestoreManager\n            Gerenciador de banco de dados do Firebase.\n        swapi : app.models.swapi.SWAPIClient\n            Cliente da API do SWAPI.\n        np : app.controllers.nlp_controller.NLPController\n            Controlador de entidades nomeadas.\n        data_service : app.models.data_service.DataService\n            Servi o de dados do Star Wars.",
+      "technology": "",
+      "parentId": "cf_backend"
+    }
+  },
+  {
+    "id": "node-smf4bzv1p",
+    "type": "c4-component",
+    "position": {
+      "x": 0,
+      "y": 300
+    },
+    "data": {
+      "id": "node-smf4bzv1p",
+      "label": "AuthController",
+      "c4Type": "component",
+      "description": "Controlador de autenticação",
+      "technology": "Python/Google OAuth",
+      "parentId": "cf_backend"
+    }
+  },
+  {
+    "id": "node-ezy1qb201",
+    "type": "c4-component",
+    "position": {
+      "x": 0,
+      "y": 600
+    },
+    "data": {
+      "id": "node-ezy1qb201",
+      "label": "Auth Utils",
+      "c4Type": "component",
+      "description": "Utilitários de autenticação, que contem métodos que :\n\n- Verifica se o token de acesso fornecido é válido, com base em Google OAuth2.\n\n- Retorna a URL para autenticação com a conta Google.\n\n-  Troca o código de autenticação pelo token de acesso.",
+      "technology": "",
+      "parentId": "cf_backend"
+    }
+  },
+  {
+    "id": "node-mf0zcesbn",
+    "type": "c4-component",
+    "position": {
+      "x": 525,
+      "y": 900
+    },
+    "data": {
+      "id": "node-mf0zcesbn",
+      "label": "DatabaseModel",
+      "c4Type": "component",
+      "description": "Modelo Firestore com métodos facilitadores",
+      "technology": "",
+      "parentId": "cf_backend"
+    }
+  },
+  {
+    "id": "node-mg1nadgs5",
+    "type": "c4-component",
+    "position": {
+      "x": 875,
+      "y": 900
+    },
+    "data": {
+      "id": "node-mg1nadgs5",
+      "label": "SWAPIClient",
+      "c4Type": "component",
+      "description": "Cliente da API SWAPI",
+      "technology": "",
+      "parentId": "cf_backend"
+    }
+  },
+  {
+    "id": "node-35j970kjo",
+    "type": "c4-component",
+    "position": {
+      "x": 875,
+      "y": 1200
+    },
+    "data": {
+      "id": "node-35j970kjo",
+      "label": "EntitiesModel",
+      "c4Type": "component",
+      "description": "Modelos de Entidades Retornadas pelo SWAPI, com tratamento utilizando o pydantic.\n\nEx: Starships, Planets e etc.",
+      "technology": "",
+      "parentId": "cf_backend"
+    }
+  },
+  {
+    "id": "node-gjatkc72v",
+    "type": "c4-component",
+    "position": {
+      "x": 350,
+      "y": 600
+    },
+    "data": {
+      "id": "node-gjatkc72v",
+      "label": "NLPServices",
+      "c4Type": "component",
+      "description": "Serviço de Processamento de Linguagem Natural que utiliza NLTK",
+      "technology": "",
+      "parentId": "cf_backend"
+    }
+  },
+  {
+    "id": "node-hrl2x8zgs",
+    "type": "c4-component",
+    "position": {
+      "x": 700,
+      "y": 600
+    },
+    "width": 200,
+    "height": 100,
+    "data": {
+      "id": "node-hrl2x8zgs",
+      "label": "DataServices",
+      "c4Type": "component",
+      "description": "Serviço de Hidratação e Manipulação de Dados",
+      "technology": "",
+      "parentId": "cf_backend"
+    }
   }
 ];
     const initialEdges = [
@@ -198,7 +330,7 @@
     "id": "rel_auth",
     "source": "user_ext",
     "target": "auth_google",
-    "label": "1. Obtém ID Token"
+    "label": "Autentica"
   },
   {
     "id": "rel_request",
@@ -211,12 +343,6 @@
     "source": "api_gateway",
     "target": "cf_backend",
     "label": "Encaminha requisição"
-  },
-  {
-    "id": "rel_nlp",
-    "source": "cf_backend",
-    "target": "nlp_engine",
-    "label": "Extrai intenção"
   },
   {
     "id": "rel_db",
@@ -246,7 +372,55 @@
     "id": "rel-vpp1v0zjn",
     "source": "sys_main",
     "target": "auth_google",
-    "label": "Realiza Integração de Auth"
+    "label": "Valida Autenticação"
+  },
+  {
+    "id": "rel-ki71gsm0q",
+    "source": "node-cpt0eihwq",
+    "target": "node-x4x26svm8",
+    "label": ""
+  },
+  {
+    "id": "rel-9ruxqx1xa",
+    "source": "node-cpt0eihwq",
+    "target": "node-smf4bzv1p",
+    "label": ""
+  },
+  {
+    "id": "rel-ix11el0vs",
+    "source": "node-smf4bzv1p",
+    "target": "node-ezy1qb201",
+    "label": "uses"
+  },
+  {
+    "id": "rel-nac8ymowi",
+    "source": "node-x4x26svm8",
+    "target": "node-hrl2x8zgs",
+    "label": "uses"
+  },
+  {
+    "id": "rel-7ethu0auj",
+    "source": "node-hrl2x8zgs",
+    "target": "node-mg1nadgs5",
+    "label": "uses"
+  },
+  {
+    "id": "rel-k6iat1lza",
+    "source": "node-hrl2x8zgs",
+    "target": "node-mf0zcesbn",
+    "label": "uses"
+  },
+  {
+    "id": "rel-4hn1ehoik",
+    "source": "node-mg1nadgs5",
+    "target": "node-35j970kjo",
+    "label": "uses"
+  },
+  {
+    "id": "rel-ccr7guq1a",
+    "source": "node-x4x26svm8",
+    "target": "node-gjatkc72v",
+    "label": "uses"
   }
 ];
     // ---------------------------------

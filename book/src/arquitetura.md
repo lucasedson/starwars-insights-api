@@ -16,6 +16,51 @@ O diagrama abaixo é multinível. Ele permite visualizar a orquestração entre 
 * **Relacionamentos:** As setas indicam o fluxo de dados entre os nós.
 
 ---
+## Visão Geral
+
+<h3>Atores e Sistemas Externos:</h3>
+<img src="./images_extras/nivel-raiz.png" style="width: 100%;border: 2px solid #f0f0f0; border-radius: 8px;"/>
+
+- **Usuário / Client:** O ponto de partida. Pode ser o seu Playground em GitHub Pages ou qualquer cliente enviando tokens via header.
+
+- **Google Auth Service:** Sistema externo que emite e valida a identidade do usuário via OAuth2.
+
+- **SWAPI External:** É a API pública de Star Wars que fornece os dados crus.
+
+
+<h2>Infraestrutura (GCP Context)</h2>
+<img src="./images_extras/nivel-system.png" style="width: 100%;border: 2px solid #f0f0f0; border-radius: 8px;"/>
+
+- **Star Wars Insights Platform:** O limite do seu sistema, englobando tudo que você controla no GCP.
+
+- **API Gateway:** A casca de proteção e roteamento. Gerencia CORS e autenticação.
+
+- **Aplicação / Cloud Function:** O ambiente serverless onde seu código Python escala sob demanda.
+
+- **GCP Firestore:** Banco de dados NoSQL usado para persistir o histórico de buscas dos usuários e o cache de entidades hidratadas.
+
+<h2>Componentes Internos (Software Design)</h2>
+<img src="./images_extras/nivel-aplicacao.png" style="width: 100%;border: 2px solid #f0f0f0; border-radius: 8px;"/>
+
+- **Main.py**:O entrypoint da função. Faz o roteamento interno (handshake) das URLs para os controladores.
+
+- **InsightController:** O "cérebro". Coordena a lógica entre a entrada do usuário, o processamento de texto e a busca de dados.
+
+- **AuthController:** Gerencia especificamente o fluxo de login e verificação de perfil.
+
+- **Auth Utils:** Ferramentas de baixo nível para troca de tokens e geração de URLs de autenticação.
+
+- **DatabaseModel**: Abstração que facilita operações de CRUD no Firestore.
+
+- **SWAPIClient:** Cliente HTTP otimizado para se comunicar com a API externa.
+
+- **EntitiesModel:** Definições de classes Pydantic (Planetas, Naves, etc.) para garantir integridade dos dados.
+
+- **NLPServices:** Camada de inteligência que traduz "Quem é o Luke?" em filtros que o sistema entende.
+
+- **DataServices:** Camada responsável pela "Hidratação" (transformar URLs da SWAPI em nomes legíveis) e manipulação de dados em paralelo.
+
+
 
 ## Decisões de Arquitetura
 
