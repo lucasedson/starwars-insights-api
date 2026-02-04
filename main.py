@@ -1,5 +1,6 @@
 import functions_framework
 from app.controllers.insight_controller import InsightController
+from app.controllers.auth_controller import AuthController
 from app.models.database import FirestoreManager
 from app.models.swapi import SWAPIClient
 from app.utils.auth import verify_google_token
@@ -17,7 +18,8 @@ load_dotenv(dotenv_path=base_path / ".env")
 db_manager = FirestoreManager(os.getenv("GCP_PROJECT_ID"))
 frontend_url = os.getenv("FRONTEND_URL")
 swapi_client = SWAPIClient()
-controller = InsightController(db_manager, swapi_client)
+insight_controller = InsightController(db_manager, swapi_client)
+auth_controller = AuthController()
 
 @functions_framework.http
 def star_wars_insights(request):
@@ -77,18 +79,18 @@ def star_wars_insights(request):
         return controller_response, 200, response_headers
  
     if path == "login":
-        return wrap_cors(controller.handle_login())
+        return wrap_cors(auth_controller.handle_login())
     
     if path == "callback":
-        return wrap_cors(controller.handle_callback(request))
+        return wrap_cors(auth_controller.handle_callback(request))
     
     if path == "me":
-        return wrap_cors(controller.get_user(user_data))
+        return wrap_cors(auth_controller.get_user(user_data))
     
     if path == "metadata":
-        return wrap_cors(controller.get_known_entities())
+        return wrap_cors(insight_controller.get_known_entities())
     
     if path == "history":
-        return wrap_cors(controller.get_my_history(user_data))
+        return wrap_cors(insight_controller.get_my_history(user_data))
     
-    return wrap_cors(controller.handle_insight(request, user_data=user_data))
+    return wrap_cors(insight_controller.handle_insight(request, user_data=user_data))
