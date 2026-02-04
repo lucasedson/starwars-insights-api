@@ -1246,6 +1246,9 @@ requires-dist = [
     { name = "python-dotenv", specifier = ">=1.2.1" },
 ]
 
+[package.metadata.requires-dev]
+dev = []
+
 [[package]]
 name = "tomli"
 version = "2.4.0"

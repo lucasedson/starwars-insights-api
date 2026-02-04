@@ -1,5 +1,6 @@
 import os
 import sys
+
 from functions_framework import create_app
 
 # Adiciona o diretório atual ao path para evitar erros de importação local

@@ -1,16 +1,17 @@
+import base64
+import json
+import os
+from pathlib import Path
+
 import functions_framework
-from app.controllers.insight_controller import InsightController
+from dotenv import load_dotenv
+from flask import Response
+
 from app.controllers.auth_controller import AuthController
+from app.controllers.insight_controller import InsightController
 from app.models.database import FirestoreManager
 from app.models.swapi import SWAPIClient
 from app.utils.auth import verify_google_token
-import os
-from dotenv import load_dotenv
-from pathlib import Path
-from flask import Response
-import json
-import base64
-
 
 base_path = Path(__file__).resolve().parent
 load_dotenv(dotenv_path=base_path / ".env")
@@ -22,16 +23,17 @@ swapi_client = SWAPIClient()
 insight_controller = InsightController(db_manager, swapi_client)
 auth_controller = AuthController()
 
+
 @functions_framework.http
 def star_wars_insights(request):
     """
     Função principal do Cloud Function, responsável por lidar com requisições HTTP.
-    
+
     Parameters
     ----------
     request : flask.Request
         Requisição HTTP recebida pelo Cloud Function.
-    
+
     Returns
     -------
     Response
@@ -42,15 +44,14 @@ def star_wars_insights(request):
             "Access-Control-Allow-Origin": frontend_short_url,
             "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Authorization",
-            "Access-Control-Max-Age": "3600"
+            "Access-Control-Max-Age": "3600",
         }
         return ("", 204, headers)
-
 
     auth_header = request.headers.get("Authorization")
     user_data = None
     user_info_encoded = request.headers.get("X-Apigateway-Api-Userinfo")
-    
+
     if user_info_encoded:
         decoded = base64.b64decode(user_info_encoded + "===").decode("utf-8")
         user_data = json.loads(decoded)
@@ -63,13 +64,12 @@ def star_wars_insights(request):
 
     path = request.path.strip("/")
 
-
     def wrap_cors(controller_response):
         response_headers = {
             "Access-Control-Allow-Origin": frontend_short_url,
             "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With",
-            "Access-Control-Max-Age": "3600"
+            "Access-Control-Max-Age": "3600",
         }
 
         if isinstance(controller_response, Response):
@@ -89,20 +89,20 @@ def star_wars_insights(request):
             return tuple(res)
 
         return controller_response, 200, response_headers
- 
+
     if path == "login":
         return wrap_cors(auth_controller.handle_login())
-    
+
     if path == "callback":
         return wrap_cors(auth_controller.handle_callback(request))
-    
+
     if path == "me":
         return wrap_cors(auth_controller.get_user(user_data))
-    
+
     if path == "metadata":
         return wrap_cors(insight_controller.get_known_entities())
-    
+
     if path == "history":
         return wrap_cors(insight_controller.get_my_history(user_data))
-    
+
     return wrap_cors(insight_controller.handle_insight(request, user_data=user_data))

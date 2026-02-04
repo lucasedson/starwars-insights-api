@@ -1,8 +1,10 @@
-from pydantic import BaseModel, BeforeValidator
-from typing import List, Optional, Any, Annotated
 from datetime import date
+from typing import Annotated, Any, List, Optional
 
-def parse_swapi_numeric(v: Any) -> Optional[float]:    
+from pydantic import BaseModel, BeforeValidator
+
+
+def parse_swapi_numeric(v: Any) -> Optional[float]:
     """Converte strings da SWAPI ('unknown', '1,000') em float ou None.
 
     Se o valor for None ou uma das strings 'unknown', 'n/a', 'none', 'indefinite' ou 'unknown', retorna None.
@@ -29,6 +31,7 @@ def parse_swapi_numeric(v: Any) -> Optional[float]:
     except (ValueError, TypeError):
         return None
 
+
 def parse_swapi_int(v: Any) -> Optional[int]:
     """Converte valores para int após passar pelo parse de float."""
     res = parse_swapi_numeric(v)
@@ -37,7 +40,6 @@ def parse_swapi_int(v: Any) -> Optional[int]:
 
 SwapiFloat = Annotated[Optional[float], BeforeValidator(parse_swapi_numeric)]
 SwapiInt = Annotated[Optional[int], BeforeValidator(parse_swapi_int)]
-
 
 
 class CharacterSchema(BaseModel):
@@ -49,7 +51,7 @@ class CharacterSchema(BaseModel):
     skin_color: str
     height: SwapiInt
     mass: SwapiFloat
-    homeworld: str 
+    homeworld: str
     films: List[str]
     species: List[str]
     starships: List[str]
@@ -57,6 +59,7 @@ class CharacterSchema(BaseModel):
     url: str
     created: str
     edited: str
+
 
 class FilmSchema(BaseModel):
     title: str
@@ -74,6 +77,7 @@ class FilmSchema(BaseModel):
     edited: str
     url: str
 
+
 class StarshipSchema(BaseModel):
     name: str
     model: str
@@ -81,7 +85,7 @@ class StarshipSchema(BaseModel):
     cost_in_credits: SwapiFloat
     length: SwapiFloat
     max_atmosphering_speed: SwapiInt
-    crew: str # Mantido str pois pode ser "1-5"
+    crew: str  # Mantido str pois pode ser "1-5"
     passengers: SwapiInt
     cargo_capacity: SwapiFloat
     consumables: str
@@ -93,6 +97,7 @@ class StarshipSchema(BaseModel):
     created: str
     edited: str
     url: str
+
 
 class VehicleSchema(BaseModel):
     name: str
@@ -111,6 +116,7 @@ class VehicleSchema(BaseModel):
     edited: str
     url: str
 
+
 class SpeciesSchema(BaseModel):
     name: str
     classification: str
@@ -127,6 +133,7 @@ class SpeciesSchema(BaseModel):
     created: str
     edited: str
     url: str
+
 
 class PlanetSchema(BaseModel):
     name: str

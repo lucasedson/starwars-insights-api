@@ -1,13 +1,14 @@
 import os
-import nltk
-from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
 from difflib import get_close_matches
+
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+
 
 class NLPService:
     def __init__(self, db_manager):
-        
-        '''
+        """
         Inicializa o serviço de NLP.
 
         Parameters
@@ -33,40 +34,53 @@ class NLPService:
             Conjunto de palavras que devem ser ignoradas pt/br.
         ruido_extra : set
             Conjunto de palavras ruidosas extras.
-        '''
+        """
         self.db = db_manager
         self.nltk_path = os.path.join("/tmp", "nltk_data")
-        
+
         if not os.path.exists(self.nltk_path):
             os.makedirs(self.nltk_path)
-        
+
         nltk.data.path.append(self.nltk_path)
         self._setup_nltk_resources()
 
-
         self.config = self.db.get_metadata("nlp_settings") or {}
-
 
         self.intent_map = self.config.get("intents", {})
         self.movie_translation = self.config.get("translations", {})
 
         self.known_entities = (
-            self.config.get("known_films", []) +
-            self.config.get("known_people", []) + 
-            self.config.get("known_planets", []) + 
-            self.config.get("known_starships", []) + 
-            self.config.get("known_species", []) +
-            list(self.movie_translation.keys())
+            self.config.get("known_films", [])
+            + self.config.get("known_people", [])
+            + self.config.get("known_planets", [])
+            + self.config.get("known_starships", [])
+            + self.config.get("known_species", [])
+            + list(self.movie_translation.keys())
         )
 
-        self.stop_words = set(stopwords.words('portuguese')).union(set(stopwords.words('english')))
-        self.ruido_extra = {'quais', 'quem', 'qual', 'quanto', 'quantos', 'o', 'a', 'os', 'as', 'de', 'do', 'da'}
+        self.stop_words = set(stopwords.words("portuguese")).union(
+            set(stopwords.words("english"))
+        )
+        self.ruido_extra = {
+            "quais",
+            "quem",
+            "qual",
+            "quanto",
+            "quantos",
+            "o",
+            "a",
+            "os",
+            "as",
+            "de",
+            "do",
+            "da",
+        }
 
     def _setup_nltk_resources(self):
-        '''
+        """
         Configura os recursos do NLTK.
-        '''
-        resources = ['punkt', 'punkt_tab', 'stopwords']
+        """
+        resources = ["punkt", "punkt_tab", "stopwords"]
         for res in resources:
             try:
                 nltk.download(res, download_dir=self.nltk_path, quiet=True)
@@ -80,17 +94,17 @@ class NLPService:
         matches = get_close_matches(name, self.known_entities, n=1, cutoff=0.7)
         corrected = matches[0] if matches else name
         return self.movie_translation.get(corrected, corrected)
-    
+
     def _fuzzy_intent(self, word: str) -> str:
         """Tenta encontrar a intenção correta mesmo com erro de digitação."""
 
         intent_keywords = list(self.intent_map.keys())
 
         matches = get_close_matches(word, intent_keywords, n=1, cutoff=0.9)
-        
+
         if matches:
             return self.intent_map[matches[0]]
-        
+
         return None
 
     def parse_sentence(self, text: str) -> dict:
@@ -109,12 +123,14 @@ class NLPService:
         if not text:
             return {}
 
-        tokens = word_tokenize(text.lower(), language='portuguese')
+        tokens = word_tokenize(text.lower(), language="portuguese")
         palavras_limpas = [
-            w for w in tokens 
-            if (w.isalnum() or '-' in w) and w not in self.stop_words and w not in self.ruido_extra
+            w
+            for w in tokens
+            if (w.isalnum() or "-" in w)
+            and w not in self.stop_words
+            and w not in self.ruido_extra
         ]
-
 
         found_filter = None
         palavra_intencao_original = None
@@ -135,14 +151,15 @@ class NLPService:
         raw_name = " ".join(nome_tokens).title()
         corrected_name = self._fuzzy_correction(raw_name)
 
-
         category_map = {
             "planets": set(self.config.get("known_planets", [])),
             "starships": set(self.config.get("known_starships", [])),
             "vehicles": set(self.config.get("known_vehicles", [])),
             "species": set(self.config.get("known_species", [])),
-            "films": set(self.config.get("known_films", [])).union(set(self.movie_translation.keys())),
-            "people": set(self.config.get("known_people", []))
+            "films": set(self.config.get("known_films", [])).union(
+                set(self.movie_translation.keys())
+            ),
+            "people": set(self.config.get("known_people", [])),
         }
 
         inferred_type = "people"
@@ -159,5 +176,5 @@ class NLPService:
             "raw_name": raw_name,
             "filter": found_filter,
             "type": inferred_type,
-            "original_query": text
+            "original_query": text,
         }

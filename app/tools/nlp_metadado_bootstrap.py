@@ -1,5 +1,6 @@
 from google.cloud import firestore
 
+
 def bootstrap_nlp_config():
     project_id = "pod-ps-backend-python"
     db = firestore.Client(project=project_id)
@@ -9,7 +10,6 @@ def bootstrap_nlp_config():
     nlp_ref = db.collection("metadata").document("nlp_settings")
 
     nlp_data = {
-
         "intents": {
             # Relacionados a Filmes (FilmSchema)
             "director": "director",
@@ -25,7 +25,6 @@ def bootstrap_nlp_config():
             "episodio": "episode_id",
             "opening crawl": "opening_crawl",
             "abertura": "opening_crawl",
-
             # Relacionados a Personagens (CharacterSchema / SpeciesSchema)
             "films": "films",
             "movies": "films",
@@ -58,7 +57,6 @@ def bootstrap_nlp_config():
             "massa": "mass",
             "language": "language",
             "idioma": "language",
-
             # Relacionados a Planetas (PlanetSchema)
             "residents": "residents",
             "residentes": "residents",
@@ -75,7 +73,6 @@ def bootstrap_nlp_config():
             "gravidade": "gravity",
             "surface water": "surface_water",
             "agua": "surface_water",
-
             # Relacionados a Naves e Veículos (StarshipSchema / VehicleSchema)
             "pilots": "pilots",
             "pilotos": "pilots",
@@ -95,7 +92,7 @@ def bootstrap_nlp_config():
             "cargo": "cargo_capacity",
             "capacidade": "cargo_capacity",
             "class": "starship_class",
-            "classe": "starship_class"
+            "classe": "starship_class",
         },
         "intent_to_type_map": {
             "director": "films",
@@ -120,7 +117,7 @@ def bootstrap_nlp_config():
             "manufacturer": "starships",
             "starship_class": "starships",
             "language": "species",
-            "classification": "species"
+            "classification": "species",
         },
         "translations": {
             "A Ameaça Fantasma": "The Phantom Menace",
@@ -128,14 +125,36 @@ def bootstrap_nlp_config():
             "A Vingança dos Sith": "Revenge of the Sith",
             "Uma Nova Esperança": "A New Hope",
             "O Império Contra-Ataca": "The Empire Strikes Back",
-            "O Retorno de Jedi": "Return of the Jedi"
+            "O Retorno de Jedi": "Return of the Jedi",
         },
-        "known_films": ["The Phantom Menace", "Attack of the Clones", "Revenge of the Sith", "A New Hope", "The Empire Strikes Back", "Return of the Jedi"],
-        "known_planets": ["Tatooine", "Alderaan", "Hoth", "Dagobah", "Bespin", "Endor", "Naboo", "Coruscant"],
-        "known_starships": ["Millennium Falcon", "X-Wing", "TIE Fighter", "Death Star", "Snowspeeder"],
+        "known_films": [
+            "The Phantom Menace",
+            "Attack of the Clones",
+            "Revenge of the Sith",
+            "A New Hope",
+            "The Empire Strikes Back",
+            "Return of the Jedi",
+        ],
+        "known_planets": [
+            "Tatooine",
+            "Alderaan",
+            "Hoth",
+            "Dagobah",
+            "Bespin",
+            "Endor",
+            "Naboo",
+            "Coruscant",
+        ],
+        "known_starships": [
+            "Millennium Falcon",
+            "X-Wing",
+            "TIE Fighter",
+            "Death Star",
+            "Snowspeeder",
+        ],
         "known_people": ["Luke Skywalker", "Yoda", "Darth Vader", "Obi-Wan Kenobi"],
         "kwown_species": [],
-        "known_vehicles": []
+        "known_vehicles": [],
     }
 
     try:
@@ -143,6 +162,7 @@ def bootstrap_nlp_config():
         print("✅ Documento 'metadata/nlp_settings' sincronizado!")
     except Exception as e:
         print(f"❌ Erro: {e}")
+
 
 if __name__ == "__main__":
     bootstrap_nlp_config()

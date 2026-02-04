@@ -1,9 +1,17 @@
-import requests
-from typing import Optional
-from app.models.entities import CharacterSchema, FilmSchema, StarshipSchema, PlanetSchema, VehicleSchema, SpeciesSchema
 import logging
 from types import SimpleNamespace
+from typing import Optional
 
+import requests
+
+from app.models.entities import (
+    CharacterSchema,
+    FilmSchema,
+    PlanetSchema,
+    SpeciesSchema,
+    StarshipSchema,
+    VehicleSchema,
+)
 
 
 class SWAPIClient:
@@ -19,7 +27,6 @@ class SWAPIClient:
         self.base_url = "https://swapi.dev/api"
 
     def _get_request(self, url: str) -> Optional[dict]:
-        
         """
         Faz uma requisição GET para a URL especificada e retorna o resultado em formato JSON.
 
@@ -40,34 +47,56 @@ class SWAPIClient:
         except requests.RequestException as e:
             logging.error(f"Erro ao buscar URL {url}: {e}")
             return None
-        
 
     def get_person(self, name: str) -> Optional[CharacterSchema]:
         data = self._get_request(f"{self.base_url}/people/?search={name}")
-        return CharacterSchema(**data["results"][0]) if data and data.get("count", 0) > 0 else None
+        return (
+            CharacterSchema(**data["results"][0])
+            if data and data.get("count", 0) > 0
+            else None
+        )
 
     def get_movie(self, title: str) -> Optional[FilmSchema]:
         data = self._get_request(f"{self.base_url}/films/?search={title}")
-        return FilmSchema(**data["results"][0]) if data and data.get("count", 0) > 0 else None
-        
+        return (
+            FilmSchema(**data["results"][0])
+            if data and data.get("count", 0) > 0
+            else None
+        )
+
     def get_starship(self, name: str) -> Optional[StarshipSchema]:
         data = self._get_request(f"{self.base_url}/starships/?search={name}")
-        return StarshipSchema(**data["results"][0]) if data and data.get("count", 0) > 0 else None
-        
+        return (
+            StarshipSchema(**data["results"][0])
+            if data and data.get("count", 0) > 0
+            else None
+        )
+
     def get_planet(self, name: str) -> Optional[PlanetSchema]:
         data = self._get_request(f"{self.base_url}/planets/?search={name}")
-        return PlanetSchema(**data["results"][0]) if data and data.get("count", 0) > 0 else None
-        
+        return (
+            PlanetSchema(**data["results"][0])
+            if data and data.get("count", 0) > 0
+            else None
+        )
+
     def get_vehicle(self, name: str) -> Optional[VehicleSchema]:
         data = self._get_request(f"{self.base_url}/vehicles/?search={name}")
-        return VehicleSchema(**data["results"][0]) if data and data.get("count", 0) > 0 else None
-        
+        return (
+            VehicleSchema(**data["results"][0])
+            if data and data.get("count", 0) > 0
+            else None
+        )
+
     def get_species(self, name: str) -> Optional[SpeciesSchema]:
         data = self._get_request(f"{self.base_url}/species/?search={name}")
-        return SpeciesSchema(**data["results"][0]) if data and data.get("count", 0) > 0 else None
+        return (
+            SpeciesSchema(**data["results"][0])
+            if data and data.get("count", 0) > 0
+            else None
+        )
 
     def fetch_hydrated(self, name: str, entity_type: str):
-        
         """
         Busca uma entidade na API do SWAPI com base em nome e tipo.
 
@@ -99,16 +128,15 @@ class SWAPIClient:
         param_name = "title" if entity_type == "films" else "name"
         method_to_call = getattr(self, method_name, None)
         if not method_to_call:
-            logging.error(f"Internal error: Method {method_name} not found in SWAPIClient")
+            logging.error(
+                f"Internal error: Method {method_name} not found in SWAPIClient"
+            )
             return None
         return method_to_call(**{param_name: name})
-        
+
     def get_entity_by_url(self, url: str):
         """
         Busca qualquer entidade diretamente pela URL fornecida pela SWAPI.
         """
         data = self._get_request(url)
         return SimpleNamespace(**data) if data else None
-
-        
-    
