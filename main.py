@@ -23,6 +23,20 @@ auth_controller = AuthController()
 
 @functions_framework.http
 def star_wars_insights(request):
+    
+    """
+    Função principal do Cloud Function, responsável por lidar com requisições HTTP.
+    
+    Parameters
+    ----------
+    request : flask.Request
+        Requisição HTTP recebida pelo Cloud Function.
+    
+    Returns
+    -------
+    Response
+        Resposta HTTP para a requisição recebida.
+    """
     if request.method == "OPTIONS":
         headers = {
             "Access-Control-Allow-Origin": frontend_url,
