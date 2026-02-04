@@ -1,4 +1,4 @@
-from pydantic import BaseModel, BeforeValidator, Field
+from pydantic import BaseModel, BeforeValidator
 from typing import List, Optional, Any, Annotated
 from datetime import date
 
