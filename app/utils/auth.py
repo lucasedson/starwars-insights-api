@@ -5,13 +5,21 @@ from google.auth.transport import requests as google_requests
 from urllib.parse import urlencode
 
 def verify_google_token(token):
-    """Valida o ID Token vindo do Header."""
+    client_id = os.getenv("GOOGLE_CLIENT_ID")
+    # A URL que apareceu no erro do seu log
+    function_url = "https://us-east1-pod-ps-backend-python.cloudfunctions.net/star_wars_insights/me"
+    
     try:
+        # Passamos uma lista de audiências permitidas
         idinfo = id_token.verify_oauth2_token(
-            token, google_requests.Request(), os.getenv("GOOGLE_CLIENT_ID")
+            token, 
+            google_requests.Request(), 
+            audience=[client_id, function_url], # ACEITA AMBOS
+            clock_skew_in_seconds=10
         )
         return idinfo
-    except Exception:
+    except Exception as e:
+        print(f"DEBUG_AUTH_ERROR: {str(e)}")
         return None
 
 def get_google_auth_url():

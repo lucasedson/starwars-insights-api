@@ -7,6 +7,8 @@ from app.controllers.nlp_controller import NLPController
 from app.utils.auth import get_google_auth_url, exchange_code_for_token
 import requests
 import os
+import base64
+import json
 
 class InsightController:
     def __init__(self, db_manager, swapi_client):
@@ -56,14 +58,20 @@ class InsightController:
         except Exception as e:
             return {"error": str(e)}, 500
     def get_user_status(self, user_data):
-        is_auth = user_data is not None
-
-        if not is_auth:
-            return {"is_auth": False}, 200
-
-        logging.info(f"🔥 [AUTH] Usuário autenticado: {user_data}")
-        return user_data, 200
+        # Se chegamos aqui e user_data existe, mas o e-mail é da conta de serviço,
+        # significa que estamos em produção e o token original foi trocado.
         
+        # DICA: Verifique se o objeto já tem os campos que o AlpineJS espera
+        if user_data:
+            user_data["is_auth"] = True
+            # Garante que não retorne o e-mail da Service Account para o front
+            if "gserviceaccount.com" in user_data.get("email", ""):
+                user_data["name"] = "Usuário Cloud" # Fallback visual
+            
+            logging.info(f"🔥 [AUTH] Enviando status para o front: {user_data.get('email')}")
+            return user_data, 200
+
+        return {"is_auth": False}, 200
         
 
     def get_known_entities(self):
@@ -92,7 +100,7 @@ class InsightController:
         return self.db.get_my_search_history(user_email), 200
     
     
-    def handle_request(self, request, user_data=None):
+    def handle_insight(self, request, user_data=None):
         params = request.args
         query_natural = params.get("q")
         
@@ -130,14 +138,12 @@ class InsightController:
 
         if user_data:            
             self.db.create_or_update_my_search_history(user_data.get("email"), params)
-            
 
-        # Passamos a sugestão para a View formatar
         return format_insight_response(
             data, 
             self._parse_filters(raw_filters), 
             source, 
-            suggestion=suggestion # <-- Enviando para a View
+            suggestion=suggestion
         )
     def _parse_filters(self, raw_filters):
         if isinstance(raw_filters, list):
@@ -202,9 +208,3 @@ class InsightController:
                 data[field_name] = val if val else field_value
         
         return data
-    
-    # def _record_search(self, query, user_data=None):
-    #     if not user_data:
-    #         return
-    #     user_email = user_data.get("email")
-    #     self.db.add_to_search_history(user_email, query)

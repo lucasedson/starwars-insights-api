@@ -7,6 +7,8 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 from flask import Response
+import json
+import base64
 
 # Configuração de Ambiente
 base_path = Path(__file__).resolve().parent
@@ -35,6 +37,17 @@ def star_wars_insights(request):
     # 2. IDENTIFICAÇÃO DO USUÁRIO
     auth_header = request.headers.get("Authorization")
     user_data = None
+    user_info_encoded = request.headers.get("X-Apigateway-Api-Userinfo")
+    
+    if user_info_encoded:
+        # Se o Gateway mandou esse header, ele é a autoridade máxima
+        decoded = base64.b64decode(user_info_encoded + "===").decode("utf-8")
+        user_data = json.loads(decoded)
+    else:
+        # Fallback para local ou chamadas sem Gateway
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            user_data = verify_google_token(auth_header.split(" ")[1])
     if auth_header and auth_header.startswith("Bearer "):
         user_data = verify_google_token(auth_header.split(" ")[1])
 
