@@ -3,54 +3,54 @@ info:
   title: Star Wars Insights API
   description: Interface inteligente para exploração do universo Star Wars via NLP e filtros estruturados com suporte total a CORS.
   version: 1.1.0
+
+# 1. DEFINIÇÃO DO MECANISMO DE SEGURANÇA
+securityDefinitions:
+  google_id_token:
+    authorizationUrl: ""
+    flow: "implicit"
+    type: "oauth2"
+    x-google-issuer: "https://accounts.google.com"
+    x-google-jwks_uri: "https://www.googleapis.com/oauth2/v3/certs"
+    x-google-audiences: "807037685986-cq6ka6qe3fok1grno3432k9u87muf5kc.apps.googleusercontent.com"
+
 schemes:
   - https
 produces:
   - application/json
 
-# Definição de Backend Padrão (Fallback)
 x-google-backend:
   address: "https://us-east1-pod-ps-backend-python.cloudfunctions.net/star_wars_insights"
   path_translation: APPEND_PATH_TO_ADDRESS
+  disable_auth: true
 
 paths:
   /:
     get:
-      summary: Busca principal (NLP ou Estruturada)
+      summary: Busca principal
       operationId: handleRequest
       parameters:
-        - name: q
-          in: query
-          type: string
-        - name: name
-          in: query
-          type: string
-        - name: type
-          in: query
-          type: string
-        - name: filter
-          in: query
-          type: string
+        - {name: q, in: query, type: string}
+        - {name: name, in: query, type: string}
+        - {name: type, in: query, type: string}
+        - {name: filter, in: query, type: string}
       responses:
         200:
           description: Sucesso
     options:
       summary: CORS Root
       operationId: corsRoot
-      responses: &corsResponse
+      responses:
         200:
           description: OK
           headers:
-            Access-Control-Allow-Origin:
-              type: string
-            Access-Control-Allow-Methods:
-              type: string
-            Access-Control-Allow-Headers:
-              type: string
+            Access-Control-Allow-Origin: {type: string}
+            Access-Control-Allow-Methods: {type: string}
+            Access-Control-Allow-Headers: {type: string}
 
   /login:
     get:
-      summary: Inicia fluxo OAuth2
+      summary: Login
       operationId: handleLogin
       responses:
         302:
@@ -58,7 +58,7 @@ paths:
 
   /callback:
     get:
-      summary: Processa código do Google
+      summary: Callback
       operationId: handleCallback
       responses:
         200:
@@ -68,53 +68,51 @@ paths:
     get:
       summary: Perfil do Usuário
       operationId: getUserProfile
+      security:
+        - google_id_token: []
       x-google-backend:
         address: "https://us-east1-pod-ps-backend-python.cloudfunctions.net/star_wars_insights/me"
+        disable_auth: true
       responses:
         200:
           description: Sucesso
     options:
       summary: CORS Me
       operationId: corsMe
-      x-google-backend:
-        address: "https://us-east1-pod-ps-backend-python.cloudfunctions.net/star_wars_insights/me"
       responses:
         200:
           description: OK
           headers:
-            Access-Control-Allow-Origin:
-              type: string
-            Access-Control-Allow-Methods:
-              type: string
-            Access-Control-Allow-Headers:
-              type: string
+            Access-Control-Allow-Origin: {type: string}
+            Access-Control-Allow-Methods: {type: string}
+            Access-Control-Allow-Headers: {type: string}
 
   /history:
-      get:
-        operationId: getHistory
-        x-google-backend:
-          address: "https://us-east1-pod-ps-backend-python.cloudfunctions.net/star_wars_insights/history"
-        responses:
-          200: {description: Sucesso}
-      options:
-        operationId: corsHistory
-        x-google-backend:
-          address: "https://us-east1-pod-ps-backend-python.cloudfunctions.net/star_wars_insights/history"
-        responses:
-          200:
-            description: OK
-            headers:
-              Access-Control-Allow-Origin:
-                type: string
-              Access-Control-Allow-Methods:
-                type: string
-              Access-Control-Allow-Headers:
-                type: string
-
+    get:
+      summary: Histórico
+      operationId: getHistory
+      security:
+        - google_id_token: []
+      x-google-backend:
+        address: "https://us-east1-pod-ps-backend-python.cloudfunctions.net/star_wars_insights/history"
+        disable_auth: true
+      responses:
+        200:
+          description: Sucesso
+    options:
+      summary: CORS History
+      operationId: corsHistory
+      responses:
+        200:
+          description: OK
+          headers:
+            Access-Control-Allow-Origin: {type: string}
+            Access-Control-Allow-Methods: {type: string}
+            Access-Control-Allow-Headers: {type: string}
 
   /metadata:
     get:
-      summary: Entidades e intenções mapeadas
+      summary: Metadados
       operationId: getMetadata
       responses:
         200:
@@ -126,9 +124,6 @@ paths:
         200:
           description: OK
           headers:
-            Access-Control-Allow-Origin:
-              type: string
-            Access-Control-Allow-Methods:
-              type: string
-            Access-Control-Allow-Headers:
-              type: string
+            Access-Control-Allow-Origin: {type: string}
+            Access-Control-Allow-Methods: {type: string}
+            Access-Control-Allow-Headers: {type: string}
