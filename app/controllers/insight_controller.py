@@ -1,12 +1,11 @@
 import logging
-from datetime import date
 from flask import redirect
-from concurrent.futures import ThreadPoolExecutor
 from app.views.responses import format_insight_response
 from app.controllers.nlp_controller import NLPController
 from app.utils.auth import get_google_auth_url
 import requests
 import os
+from app.models.data_service import DataService
 
 client_id = os.getenv("GOOGLE_CLIENT_ID")
 client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
@@ -17,12 +16,8 @@ class InsightController:
         self.db = db_manager
         self.swapi = swapi_client
         self.nlp = NLPController(self.db)
-        self.hydration_map = {
-            "films": "title", "pilots": "name", "residents": "name",
-            "characters": "name", "people": "name", "species": "name",
-            "starships": "name", "vehicles": "name", "homeworld": "name",
-            "planets": "name",
-        }
+
+        self.data_service = DataService(self.db, self.swapi)
 
     def handle_login(self):
         return redirect(get_google_auth_url())
@@ -123,13 +118,13 @@ class InsightController:
 
         if not data:
             source = "live"
-            data = self._fetch_and_learn(search_name, entity_type)
+            data = self.data_service.fetch_and_learn(search_name, entity_type)
             if not data or "error" in data:
-                return format_insight_response(data or {"error": "Not found"}, self._parse_filters(raw_filters), "error")
+                return format_insight_response(data or {"error": "Not found"}, self.data_service.parse_filters(raw_filters), "error")
             
-            data = self._hydrate_all_parallel(data)
+            data = self.data_service.hydrate_all_parallel(data)
             data['type'] = entity_type
-            self._cache_new_data(entity_type, (data.get("name") or data.get("title")), data)
+            self.data_service.cache_new_data(entity_type, (data.get("name") or data.get("title")), data)
         else:
             data['type'] = entity_type
 
@@ -139,70 +134,7 @@ class InsightController:
 
         return format_insight_response(
             data, 
-            self._parse_filters(raw_filters), 
+            self.data_service.parse_filters(raw_filters), 
             source, 
             suggestion=suggestion
         )
-    def _parse_filters(self, raw_filters):
-        if isinstance(raw_filters, list):
-            return raw_filters
-        if isinstance(raw_filters, str) and raw_filters.strip():
-            return [f.strip() for f in raw_filters.split(',')]
-        return None
-
-
-    def _fetch_and_learn(self, name, entity_type):
-        pydantic_data = self.swapi.fetch_hydrated(name, entity_type)
-        if not pydantic_data:
-            return None
-        data = pydantic_data.model_dump(by_alias=True)
-        real_name = data.get("name") or data.get("title")
-        metadata_map = {"people": "known_people", "planets": "known_planets", 
-                        "starships": "known_starships", "films": "known_films"}
-        target_list = metadata_map.get(entity_type)
-        if target_list:
-            self.db.add_to_metadata_list(target_list, real_name)
-        return data
-
-    def _cache_new_data(self, entity_type, name, data):
-        if 'release_date' in data and isinstance(data['release_date'], date):
-            data['release_date'] = data['release_date'].isoformat()
-        self.db.set(entity_type, name, data)
-
-    def _hydrate_all_parallel(self, data):
-        fields_to_hydrate = [f for f in self.hydration_map.keys() if f in data]
-        if not fields_to_hydrate:
-            return data
-            
-        with ThreadPoolExecutor(max_workers=10) as executor:
-            # list() força a espera de todas as threads
-            list(executor.map(lambda f: self._hydrate_field(data, f, self.hydration_map[f]), fields_to_hydrate))
-        return data
-
-    def _hydrate_field(self, data: dict, field_name: str, lookup_key: str) -> dict:
-
-        field_value = data.get(field_name)
-        if not field_value:
-            return data
-
-        if isinstance(field_value, list):
-            hydrated_items = []
-            for item in field_value:
-                if isinstance(item, str) and 'swapi.dev' in item:
-                    item_data = self.swapi.get_entity_by_url(item)
-                    if item_data:
-                        val = getattr(item_data, lookup_key, None) or (item_data.get(lookup_key) if isinstance(item_data, dict) else None)
-                        hydrated_items.append(val if val else item)
-                    else:
-                        hydrated_items.append(item)
-                else:
-                    hydrated_items.append(item)
-            data[field_name] = hydrated_items
-
-        elif isinstance(field_value, str) and 'swapi.dev' in field_value:
-            item_data = self.swapi.get_entity_by_url(field_value)
-            if item_data:
-                val = getattr(item_data, lookup_key, None) or (item_data.get(lookup_key) if isinstance(item_data, dict) else None)
-                data[field_name] = val if val else field_value
-        
-        return data
