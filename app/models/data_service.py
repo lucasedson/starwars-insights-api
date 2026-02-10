@@ -37,6 +37,8 @@ class DataService:
             "planets": "known_planets",
             "starships": "known_starships",
             "films": "known_films",
+            "species": "known_species",
+            "vehicles": "known_vehicles",
         }
         target_list = metadata_map.get(entity_type)
         if target_list:
