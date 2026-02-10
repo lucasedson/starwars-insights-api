@@ -161,6 +161,7 @@ class InsightController:
                 for t in types:
                     data = self.data_service.fetch_and_learn(search_name, t)
                     if data:
+                        entity_type = t
                         break
                 return format_insight_response(
                     data or {"error": "Not found"},
