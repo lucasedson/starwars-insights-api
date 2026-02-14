@@ -148,9 +148,21 @@ class InsightController:
         source = "firestore"
 
         if not data:
+            types = [
+                "films",
+                "people",
+                "planets",
+                "starships",
+                "species",
+                "vehicles",]
             source = "live"
             data = self.data_service.fetch_and_learn(search_name, entity_type)
             if not data or "error" in data:
+                for t in types:
+                    data = self.data_service.fetch_and_learn(search_name, t)
+                    if data:
+                        entity_type = t
+                        break
                 return format_insight_response(
                     data or {"error": "Not found"},
                     self.data_service.parse_filters(raw_filters),
@@ -162,6 +174,8 @@ class InsightController:
             self.data_service.cache_new_data(
                 entity_type, (data.get("name") or data.get("title")), data
             )
+            
+        
         else:
             data["type"] = entity_type
 
